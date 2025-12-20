@@ -82,13 +82,38 @@ services:
     environment:
       POSTGRES_PASSWORD: password
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: [ "CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       retries: 5
       start_period: 30s
       timeout: 10s
+  search:
+    image: search:latest
+    build:
+      context: search-services
+      dockerfile: Dockerfile.search
+    container_name: search
+    restart: unless-stopped
+    ports:
+      - 28083:8080
+    volumes:
+      - ./search-services/search/config.yaml:/config.yaml
+    environment:
+      - SEARCH_ADDRESS=:8080
+      - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
+      - WORDS_ADDRESS=words:8080
+      - SEARCH_RATE=100
+      - SEARCH_CONCURRENCY=10
+      - BROKER_ADDRESS=nats://nats:4222
+    depends_on:
+      postgres:
+        condition: service_healthy
+      words:
+        condition: service_started
+      nats:
+        condition: service_started
 
   pgadmin:
     image: dpage/pgadmin4

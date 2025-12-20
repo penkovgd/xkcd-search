@@ -2,15 +2,15 @@ package xkcd
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
 
+	"github.com/penkovgd/closer"
 	"yadro.com/course/update/core"
 )
-
-const lastPath = "/info.0.json"
 
 type Client struct {
 	log    *slog.Logger
@@ -29,10 +29,92 @@ func NewClient(url string, timeout time.Duration, log *slog.Logger) (*Client, er
 	}, nil
 }
 
+type GetResponse struct {
+	Num        int    `json:"num"`
+	Transcript string `json:"transcript"`
+	Title      string `json:"title"`
+	SafeTitle  string `json:"save_title"`
+	Alt        string `json:"alt"`
+	Img        string `json:"img"`
+}
+
 func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) {
-	return core.XKCDInfo{}, nil
+	endpoint := fmt.Sprintf(`%s/%d/info.0.json`, c.url, id)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		c.log.Error("failed to create request", "endpoint", endpoint, "error", err)
+		return core.XKCDInfo{}, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		c.log.Error("failed to fetch comic", "id", id, "error", err)
+		return core.XKCDInfo{}, err
+	}
+	defer closer.CloseOrLog(c.log, resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+
+		if resp.StatusCode == http.StatusNotFound {
+			c.log.Error("comic not found", "status", resp.StatusCode, "id", id)
+			return core.XKCDInfo{}, core.ErrNotFound
+		}
+
+		c.log.Error("received non-OK http status", "status", resp.StatusCode, "id", id)
+		return core.XKCDInfo{}, fmt.Errorf("received non-OK http status: %d", resp.StatusCode)
+	}
+
+	var respDecoded GetResponse
+	if err := json.NewDecoder(resp.Body).Decode(&respDecoded); err != nil {
+		c.log.Error("failed to decode json response", "id", id, "error", err)
+		return core.XKCDInfo{}, err
+	}
+
+	c.log.Debug("successfully fetched comic", "id", id)
+
+	return core.XKCDInfo{
+		ID:          respDecoded.Num,
+		URL:         respDecoded.Img,
+		Title:       respDecoded.Title,
+		SafeTitle:   respDecoded.SafeTitle,
+		Description: respDecoded.Transcript,
+		Alt:         respDecoded.Alt,
+	}, nil
+}
+
+type LastIDResponse struct {
+	Id int `json:"num"`
 }
 
 func (c Client) LastID(ctx context.Context) (int, error) {
-	return 0, nil
+	endpoint := c.url + `/info.0.json`
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		c.log.Error("failed to create request", "endpoint", endpoint, "error", err)
+		return 0, err
+	}
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		c.log.Error("failed to send request ", "endpoint", endpoint, "error", err)
+		return 0, err
+	}
+	defer closer.CloseOrLog(c.log, resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		c.log.Error("received non-OK http status", "status", resp.StatusCode)
+		return 0, fmt.Errorf("received non-OK http status: %d", resp.StatusCode)
+	}
+
+	var lastIDResp LastIDResponse
+	if err := json.NewDecoder(resp.Body).Decode(&lastIDResp); err != nil {
+		c.log.Error("failed to decode json response", "error", err)
+		return 0, err
+	}
+
+	c.log.Debug("successfully fetched last id", "id", lastIDResp.Id)
+
+	return lastIDResp.Id, nil
 }

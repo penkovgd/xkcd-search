@@ -12,7 +12,7 @@ type Updater interface {
 }
 
 type DB interface {
-	Add(context.Context, Comics) error
+	Add(context.Context, Comic) error
 	Stats(context.Context) (DBStats, error)
 	Drop(context.Context) error
 	IDs(context.Context) ([]int, error)
@@ -25,4 +25,8 @@ type XKCD interface {
 
 type Words interface {
 	Norm(ctx context.Context, phrase string) ([]string, error)
+}
+
+type Publisher interface {
+	Publish(context.Context, Message) error
 }

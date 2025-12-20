@@ -8,12 +8,16 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/penkovgd/closer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	updatepb "yadro.com/course/proto/update"
 	"yadro.com/course/update/adapters/db"
 	updategrpc "yadro.com/course/update/adapters/grpc"
+	publisher "yadro.com/course/update/adapters/nats-publisher"
 	"yadro.com/course/update/adapters/words"
 	"yadro.com/course/update/adapters/xkcd"
 	"yadro.com/course/update/config"
@@ -61,9 +65,17 @@ func run(cfg config.Config, log *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("failed create Words client: %v", err)
 	}
+	defer closer.CloseOrLog(log, words)
+
+	// nats broker
+	publisher, err := publisher.New(log, cfg.BrokerAddress)
+	if err != nil {
+		return fmt.Errorf("failed to create nats publisher: %w", err)
+	}
+	defer closer.CloseOrLog(log, publisher)
 
 	// service
-	updater, err := core.NewService(log, storage, xkcd, words, cfg.XKCD.Concurrency)
+	updater, err := core.NewService(log, storage, xkcd, words, publisher, cfg.XKCD.Concurrency)
 	if err != nil {
 		return fmt.Errorf("failed create Update service: %v", err)
 	}
@@ -78,14 +90,20 @@ func run(cfg config.Config, log *slog.Logger) error {
 	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater))
 	reflection.Register(s)
 
-	// context for Ctrl-C
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	// context for Ctrl-C and docker
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	go func() {
 		<-ctx.Done()
 		log.Debug("shutting down server")
+		timer := time.AfterFunc(5*time.Second, func() {
+			log.Warn("server couldn't stop gracefully in time. doing force stop")
+			s.Stop()
+		})
+		defer timer.Stop()
 		s.GracefulStop()
+		log.Debug("server stopped gracefully")
 	}()
 
 	if err := s.Serve(listener); err != nil {

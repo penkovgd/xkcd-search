@@ -18,6 +18,7 @@ golint:
 	golangci-lint run -E gocritic -v ./...
 
 test:
-	go test -race -coverprofile cover.out \
-		$(shell go list ./... | egrep -v 'yadro.com/course/(proto|api$$|update$$|words$$|search$$)')
+	CGO_ENABLED=1 go test -race -coverprofile cover.out \
+		$(shell go list ./... | egrep -v 'yadro.com/course/(proto|api$$|update$$|words$$|search$$|search/core/mocks)')
+	go tool cover -func=cover.out | tail -1
 	go tool cover -html cover.out -o cover.html

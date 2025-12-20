@@ -1,4 +1,4 @@
-container_runtime := $(shell which podman || which docker)
+container_runtime := $(shell which docker || which podman)
 
 $(info using ${container_runtime})
 
@@ -33,6 +33,7 @@ unit:
 	mv search-services/cover.html .
 
 tools:
+	go install go.uber.org/mock/mockgen@latest
 	go install github.com/yoheimuta/protolint/cmd/protolint@latest
 	go install golang.org/x/tools/cmd/goimports@latest
 	go install github.com/fullstorydev/grpcurl/cmd/grpcurl@latest

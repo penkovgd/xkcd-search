@@ -18,7 +18,7 @@ type ServiceStats struct {
 	ComicsTotal int
 }
 
-type Comics struct {
+type Comic struct {
 	ID    int
 	URL   string
 	Words []string
@@ -27,5 +27,13 @@ type Comics struct {
 type XKCDInfo struct {
 	ID          int
 	URL         string
+	Title       string
+	SafeTitle   string
 	Description string
+	Alt         string
+}
+
+type Message struct {
+	Subject string
+	Payload []byte
 }
