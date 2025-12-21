@@ -1,0 +1,2 @@
+ALTER TABLE comics DROP COLUMN date,
+    DROP COLUMN title;

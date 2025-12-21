@@ -32,10 +32,10 @@ func New(log *slog.Logger, address string) (*DB, error) {
 
 func (db *DB) Add(ctx context.Context, comic core.Comic) error {
 	res, err := db.conn.ExecContext(ctx,
-		`INSERT INTO comics(id, url, words) 
-		VALUES ($1, $2, $3) 
+		`INSERT INTO comics(id, url, words, title, date) 
+		VALUES ($1, $2, $3, $4, $5) 
 		ON CONFLICT DO NOTHING`,
-		comic.ID, comic.URL, comic.Words,
+		comic.ID, comic.URL, comic.Words, comic.Title, comic.Date,
 	)
 	if err != nil {
 		db.log.Error("failed to add comic", "id", comic.ID, "error", err)

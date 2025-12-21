@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
@@ -28,6 +29,8 @@ type ComicDB struct {
 	Id    int            `db:"id"`
 	Url   string         `db:"url"`
 	Words pq.StringArray `db:"words"`
+	Title string         `db:"title"`
+	Date  time.Time      `db:"date"`
 }
 
 func (db *DB) GetAll(ctx context.Context) ([]core.Comic, error) {
@@ -46,6 +49,8 @@ func (db *DB) GetAll(ctx context.Context) ([]core.Comic, error) {
 			Id:    c.Id,
 			Url:   c.Url,
 			Words: c.Words,
+			Date:  c.Date,
+			Title: c.Title,
 		})
 	}
 

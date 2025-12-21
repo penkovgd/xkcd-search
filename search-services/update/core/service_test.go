@@ -90,16 +90,16 @@ func TestStats_Simple(t *testing.T) {
 			ID:    1,
 			URL:   "url",
 			Words: []string{"1", "2", "3"},
+			Title: "test title",
+			Date:  time.Now(),
 		},
 	}
 	infos := map[int]XKCDInfo{
 		1: {
-			ID:          1,
-			URL:         "1",
-			Title:       "2",
-			SafeTitle:   "3",
-			Description: "",
-			Alt:         "",
+			ID:        1,
+			URL:       "1",
+			Title:     "2",
+			SafeTitle: "3",
 		},
 	}
 	_, _, service, err := newServiceWithMocks(t, comics, infos, 10, 0)
@@ -125,12 +125,9 @@ func TestUpdate_Success(t *testing.T) {
 	// Arrange
 	infos := map[int]XKCDInfo{
 		1: {
-			ID:          1,
-			URL:         "url",
-			Title:       "title",
-			SafeTitle:   "",
-			Description: "",
-			Alt:         "",
+			ID:    1,
+			URL:   "url",
+			Title: "title",
 		},
 	}
 	db, pub, service, err := newServiceWithMocks(t, nil, infos, 10, 0)
@@ -169,12 +166,9 @@ func TestStatus_WhenUpdating(t *testing.T) {
 	// Arrange
 	infos := map[int]XKCDInfo{
 		1: {
-			ID:          1,
-			URL:         "url",
-			Title:       "title",
-			SafeTitle:   "",
-			Description: "",
-			Alt:         "",
+			ID:    1,
+			URL:   "url",
+			Title: "title",
 		},
 	}
 	dbDelay := 10 * time.Millisecond

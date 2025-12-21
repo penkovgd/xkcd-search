@@ -1,5 +1,7 @@
 package core
 
+import "time"
+
 type UpdateStatus string
 
 const (
@@ -16,6 +18,8 @@ type UpdateStats struct {
 }
 
 type Comic struct {
-	ID  int
-	URL string
+	ID    int
+	URL   string
+	Title string
+	Date  time.Time
 }

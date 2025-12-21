@@ -97,7 +97,7 @@ func (s *Service) Update(ctx context.Context) error {
 				return
 			}
 
-			err = s.db.Add(ctx, Comic{ID: info.ID, URL: info.URL, Words: words})
+			err = s.db.Add(ctx, Comic{ID: info.ID, URL: info.URL, Words: words, Title: info.SafeTitle, Date: info.Date})
 			if err != nil {
 				s.log.Warn("failed to save comic to db, skipping", "id", id, "error", err)
 				return
@@ -132,7 +132,7 @@ func (s *Service) Stats(ctx context.Context) (ServiceStats, error) {
 	} else {
 		comicsTotal = lastId
 	}
-	
+
 	return ServiceStats{
 		DBStats: DBStats{
 			WordsTotal:    dbStats.WordsTotal,

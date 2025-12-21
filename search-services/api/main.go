@@ -85,7 +85,7 @@ func run(cfg config.Config, log *slog.Logger) error {
 	server := http.Server{
 		Addr:        cfg.HTTPConfig.Address,
 		ReadTimeout: cfg.HTTPConfig.Timeout,
-		Handler:     mux,
+		Handler:     middleware.CORS(mux.ServeHTTP, cfg),
 		BaseContext: func(_ net.Listener) context.Context { return ctx },
 	}
 

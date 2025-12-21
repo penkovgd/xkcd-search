@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	searchpb "yadro.com/course/proto/search"
 	"yadro.com/course/search/core"
 )
@@ -47,7 +48,7 @@ func (s *Server) Search(ctx context.Context, in *searchpb.SearchRequest) (*searc
 
 	pbComics := make([]*searchpb.Comic, len(comics))
 	for i, c := range comics {
-		pbComics[i] = &searchpb.Comic{Id: int64(c.Id), Url: c.Url}
+		pbComics[i] = &searchpb.Comic{Id: int64(c.Id), Url: c.Url, Title: c.Title, Date: timestamppb.New(c.Date)}
 	}
 
 	return &searchpb.SearchReply{Comics: pbComics}, nil
@@ -69,7 +70,7 @@ func (s *Server) SearchIndex(ctx context.Context, in *searchpb.SearchRequest) (*
 
 	pbComics := make([]*searchpb.Comic, len(comics))
 	for i, c := range comics {
-		pbComics[i] = &searchpb.Comic{Id: int64(c.Id), Url: c.Url}
+		pbComics[i] = &searchpb.Comic{Id: int64(c.Id), Url: c.Url, Title: c.Title, Date: timestamppb.New(c.Date)}
 	}
 
 	return &searchpb.SearchReply{Comics: pbComics}, nil

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/penkovgd/closer"
@@ -33,9 +34,12 @@ type GetResponse struct {
 	Num        int    `json:"num"`
 	Transcript string `json:"transcript"`
 	Title      string `json:"title"`
-	SafeTitle  string `json:"save_title"`
+	SafeTitle  string `json:"safe_title"`
 	Alt        string `json:"alt"`
 	Img        string `json:"img"`
+	Day        string `json:"day"`
+	Month      string `json:"month"`
+	Year       string `json:"year"`
 }
 
 func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) {
@@ -71,6 +75,22 @@ func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) {
 		return core.XKCDInfo{}, err
 	}
 
+	year, err := strconv.Atoi(respDecoded.Year)
+	if err != nil {
+		c.log.Error("failed to convert to int", "str", respDecoded.Year, "error", err)
+		return core.XKCDInfo{}, err
+	}
+	month, err := strconv.Atoi(respDecoded.Month)
+	if err != nil {
+		c.log.Error("failed to convert to int", "str", respDecoded.Month, "error", err)
+		return core.XKCDInfo{}, err
+	}
+	day, err := strconv.Atoi(respDecoded.Day)
+	if err != nil {
+		c.log.Error("failed to convert to int", "str", respDecoded.Day, "error", err)
+		return core.XKCDInfo{}, err
+	}
+
 	c.log.Debug("successfully fetched comic", "id", id)
 
 	return core.XKCDInfo{
@@ -80,6 +100,13 @@ func (c Client) Get(ctx context.Context, id int) (core.XKCDInfo, error) {
 		SafeTitle:   respDecoded.SafeTitle,
 		Description: respDecoded.Transcript,
 		Alt:         respDecoded.Alt,
+		Date: time.Date(
+			year,
+			time.Month(month),
+			day,
+			0, 0, 0, 0,
+			time.UTC,
+		),
 	}, nil
 }
 

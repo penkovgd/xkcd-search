@@ -71,7 +71,7 @@ func (c *Client) Search(ctx context.Context, phrase string, limit int) ([]core.C
 
 	comics := make([]core.Comic, len(comicspb))
 	for i, c := range comicspb {
-		comics[i] = core.Comic{ID: int(c.GetId()), URL: c.GetUrl()}
+		comics[i] = core.Comic{ID: int(c.GetId()), URL: c.GetUrl(), Title: c.GetTitle(), Date: c.GetDate().AsTime()}
 	}
 	return comics, nil
 }
@@ -91,7 +91,7 @@ func (c *Client) SearchIndex(ctx context.Context, phrase string, limit int) ([]c
 
 	comics := make([]core.Comic, len(comicspb))
 	for i, c := range comicspb {
-		comics[i] = core.Comic{ID: int(c.GetId()), URL: c.GetUrl()}
+		comics[i] = core.Comic{ID: int(c.GetId()), URL: c.GetUrl(), Title: c.GetTitle(), Date: c.GetDate().AsTime()}
 	}
 	return comics, nil
 }

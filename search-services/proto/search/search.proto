@@ -3,6 +3,7 @@ syntax = "proto3";
 package search;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "yadro.com/course/proto/search";
 
@@ -18,6 +19,8 @@ message SearchReply {
 message Comic {
   int64 id = 1;
   string url = 2;
+  string title = 3;
+  google.protobuf.Timestamp date = 4;
 }
 
 service Search {
