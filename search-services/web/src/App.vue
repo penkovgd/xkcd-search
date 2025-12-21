@@ -1,14 +1,50 @@
 <script setup lang="ts">
-  import { NButton } from 'naive-ui'
+import { RouterView } from 'vue-router'
+import { NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
+
+const themeOverrides: GlobalThemeOverrides = {
+  common: {
+    primaryColor: '#6e7b91',
+    primaryColorHover: '#5a6476',
+    primaryColorPressed: '#5a6476',
+    primaryColorSuppl: '#6e7b91',
+  },
+  Input: {
+    border: '1.5px solid var(--surface-border)',
+  },
+  Tabs: {
+    tabFontWeightActive: 600,
+  },
+  Pagination: {
+    // itemColor: 'var(--color-primary)', // Цвет неактивных кнопок
+    // itemBorder: '1px solid #d9d9d9', // Обводка
+    // itemBorderHover: '1px solid #1890ff', // Обводка при наведении
+    // itemBorderActive: '2px solid #1890ff', // Обводка активной страницы
+    // itemBorderRadius: '6px', // Радиус скругления
+    // itemSizeMedium: '36px', // Размер кнопки (medium)
+    // itemTextColor: '#ffffff', // Цвет текста
+    // itemTextColorHover: '#fff', // Цвет текста при наведении
+    // itemTextColorPressed: '#096dd9', // Цвет текста при нажатии
+    // itemTextColorActive: '#ffffff', // Цвет текста активной страницы
+    // itemColorActive: '#1890ff', // Фон активной страницы (primary)
+    // Для других состояний:
+    // itemColorActiveHover: '#5a6476',
+    // itemColorActivePressed: '#096dd9',
+    // Цвет кнопок "вперед/назад" в простом (simple) режиме
+    buttonColor: 'var(--color-primary)',
+    buttonColorHover: '#5a6476',
+    buttonColorPressed: '#5a6476',
+    buttonIconColor: '#fff',
+    buttonIconColorHover: '#fff',
+    buttonIconColorPressed: '#fff',
+  },
+}
 </script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-    <n-button>naive-ui</n-button>
+  <n-config-provider :theme-overrides="themeOverrides">
+    <n-message-provider :duration="4000">
+      <RouterView />
+    </n-message-provider>
+  </n-config-provider>
 </template>
-
-<style scoped></style>

@@ -1,0 +1,69 @@
+:root {
+  /* Colors */
+  --color-background: #96a8c8;
+  --color-primary: #6e7b91;
+  --color-dark: #333;
+  --color-gray: #767676;
+  --color-link: #96a8c8;
+  
+  /* Surface */
+  --surface-bg: #ffffff;
+  --surface-border: #282b30;
+  --surface-radius: 8px;
+  
+  /* Text */
+  --text-dark: #282b30;
+  --text-gray: #767676;
+}
+
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-variant: small-caps;
+  font-family: Lucida,Helvetica,sans-serif;
+  font-weight: 500;
+  /* background-color: var(--color-background); */
+  color: var(--text-dark);
+  background-image: url('/pattern.jpg');
+  background-repeat: repeat;      /* повторять по X и Y */
+  background-position: top left;  /* откуда начинать */
+}
+
+/* Link styles */
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Surface utility class */
+.surface {
+  background-color: var(--surface-bg);
+  border-radius: var(--surface-radius);
+  border: 1.5px solid var(--surface-border);
+  box-shadow: 0 0 5px 0 gray;
+
+}
+
+.search-button {
+  background: var(--color-primary);
+  border-color: var(--surface-border);
+  font-variant: small-caps;
+  font-family: Lucida, Helvetica, sans-serif;
+  border: 1.5px solid #333;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 1.5px 12px;
+  margin: 0 4px;
+  text-decoration: none;
+  border-radius: 3px;
+  box-shadow: 0 0 5px 0 gray;
+}
