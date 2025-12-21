@@ -11,7 +11,7 @@ type XKCD struct {
 	URL         string        `yaml:"url" env:"XKCD_URL" env-default:"xkcd.com"`
 	Concurrency int64         `yaml:"concurrency" env:"XKCD_CONCURRENCY" env-default:"1"`
 	Timeout     time.Duration `yaml:"timeout" env:"XKCD_TIMEOUT" env-default:"10s"`
-	CheckPeriod time.Duration `yaml:"check_period" env:"XKCD_CHECK_PERIOD" env-default:"1h"`
+	Schedule    string        `yaml:"schedule" env:"XKCD_SCHEDULE" env-default:"0 9 * * 1,3,5"`
 }
 
 type Config struct {

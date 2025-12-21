@@ -18,6 +18,7 @@ import (
 	"yadro.com/course/update/adapters/db"
 	updategrpc "yadro.com/course/update/adapters/grpc"
 	publisher "yadro.com/course/update/adapters/nats-publisher"
+	"yadro.com/course/update/adapters/scheduler"
 	"yadro.com/course/update/adapters/words"
 	"yadro.com/course/update/adapters/xkcd"
 	"yadro.com/course/update/config"
@@ -77,7 +78,7 @@ func run(cfg config.Config, log *slog.Logger) error {
 	// service
 	updater, err := core.NewService(log, storage, xkcd, words, publisher, cfg.XKCD.Concurrency)
 	if err != nil {
-		return fmt.Errorf("failed create Update service: %v", err)
+		return fmt.Errorf("failed create Update service: %w", err)
 	}
 
 	// grpc server
@@ -93,6 +94,16 @@ func run(cfg config.Config, log *slog.Logger) error {
 	// context for Ctrl-C and docker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	scheduler, err := scheduler.New(log, updater, cfg.XKCD.Schedule)
+	if err != nil {
+		return fmt.Errorf("failed to create Scheduler: %w", err)
+	}
+	err = scheduler.Start(ctx)
+	if err != nil {
+		return fmt.Errorf("start scheduler: %w", err)
+	}
+	defer closer.CloseOrLog(log, scheduler)
 
 	go func() {
 		<-ctx.Done()
