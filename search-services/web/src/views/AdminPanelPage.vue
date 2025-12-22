@@ -71,13 +71,11 @@ const handleUpdate = async () => {
     // После успешного старта обновления, периодически проверяем статус
     await waitForUpdateCompletion()
   } catch (error: any) {
-    if (error.response?.status === 409) {
-      message.warning('Update is already running')
-      // Если обновление уже запущено, начинаем следить за статусом
-      await waitForUpdateCompletion()
+    if (error.response?.status === 401) {
+      router.push('login')
     } else {
       message.error('Failed to start update')
-      console.error('Update error:', error)
+      // console.error('Update error:', error)
       updateStatus.value = 'idle'
     }
   } finally {
@@ -124,12 +122,12 @@ const handleDrop = async () => {
 
 const handleError = (error: any, defaultMessage: string) => {
   if (error.response?.status === 401) {
-    message.error('Token is expired or invalid')
-    // router.push('/login')
+    // message.error('Token is expired or invalid')
+    router.push('/login')
   } else {
     message.error(defaultMessage)
   }
-  console.error(error)
+  // console.error(error)
 }
 
 const refreshAll = async () => {
@@ -245,12 +243,13 @@ watch(updateStatus, (newStatus) => {
 
 <style scoped>
 .admin-container {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   justify-content: center;
   align-items: flex-start;
   /* background: var(--color-background); */
   padding: 20px 4px 40px;
+  flex: 1;
 }
 
 .admin-card {

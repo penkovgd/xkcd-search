@@ -46,7 +46,6 @@ const handleLogin = async () => {
       name: formValue.value.username,
       password: formValue.value.password,
     })
-
     // Сохраняем токен (можно в localStorage или store)
     const token = response.data
     localStorage.setItem('token', token)
@@ -120,13 +119,13 @@ const handleLogin = async () => {
 
 <style scoped>
 .login-container {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   align-items: center;
   justify-content: center;
   /* background-color: var(--color-background); */
   padding: 4px;
-  border: 1.5px solid var(--surface-border);
+  flex: 1;
 }
 
 .login-card {

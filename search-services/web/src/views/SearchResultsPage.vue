@@ -267,11 +267,12 @@ onMounted(() => {
 
 <style scoped>
 .search-container {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   justify-content: center;
   /* background: var(--color-background); */
   padding: 20px 4px 40px;
+  flex: 1;
 }
 
 .results-card {
@@ -447,7 +448,7 @@ onMounted(() => {
   }
 
   .comic-image {
-    height: 120px;
+    height: 250px;
   }
 
   .comic-title {

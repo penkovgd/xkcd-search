@@ -32,6 +32,7 @@ body {
   background-image: url('/pattern.jpg');
   background-repeat: repeat;      /* повторять по X и Y */
   background-position: top left;  /* откуда начинать */
+  background-attachment: fixed;    /* чтобы фон не дергался при скролле */
 }
 
 /* Link styles */

@@ -14,7 +14,7 @@ services:
     environment:
       - ADMIN_USER=admin
       - ADMIN_PASSWORD=password
-      - TOKEN_TTL=2m
+      - TOKEN_TTL=1h
       - API_ADDRESS=:8080
       - WORDS_ADDRESS=words:8080
       - UPDATE_ADDRESS=update:8080

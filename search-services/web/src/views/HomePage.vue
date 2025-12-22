@@ -58,12 +58,13 @@ const goToHome = () => {
 
 <style scoped>
 .home-container {
-  min-height: 100vh;
+  /* min-height: 100vh; */
   display: flex;
   align-items: center;
   justify-content: center;
   /* background-color: var(--color-background); */
   padding: 4px;
+  flex: 1;
 }
 
 .content-card {

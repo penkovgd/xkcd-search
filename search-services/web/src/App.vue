@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import Footer from './views/FooterComponent.vue'
 import { NConfigProvider, NMessageProvider, type GlobalThemeOverrides } from 'naive-ui'
 
 const themeOverrides: GlobalThemeOverrides = {
@@ -44,7 +45,33 @@ const themeOverrides: GlobalThemeOverrides = {
 <template>
   <n-config-provider :theme-overrides="themeOverrides">
     <n-message-provider :duration="4000">
-      <RouterView />
+      <div id="app">
+        <main class="page-content">
+          <RouterView />
+        </main>
+        <Footer />
+      </div>
     </n-message-provider>
   </n-config-provider>
 </template>
+
+<style scoped>
+html,
+body,
+#app {
+  height: 100vh;
+  margin: 0;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+/* главный контент между header и footer */
+.page-content {
+  flex: 1; /* растягивает всё пространство между header и footer */
+  display: flex;
+  flex-direction: column;
+}
+</style>
