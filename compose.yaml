@@ -58,8 +58,12 @@ services:
       - XKCD_CONCURRENCY=10
       - WORDS_ADDRESS=words:8080
       - BROKER_ADDRESS=nats://nats:4222
+      - MINIO_CONNECT_ADDRESS=minio:9000
+      - MINIO_PUBLIC_ADDRESS=localhost:9000
     depends_on:
       postgres:
+        condition: service_healthy
+      minio:
         condition: service_healthy
       words:
         condition: service_started
@@ -134,7 +138,43 @@ services:
     image: nats
     ports:
       - "4222:4222"
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server --console-address ":9001" /data
+    ports:
+      - "9000:9000" 
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: root 
+      MINIO_ROOT_PASSWORD: password 
+      MINIO_USE_SSL: "false"
+      MINIO_DEFAULT_BUCKETS: "images"
+    volumes:
+      - minio-storage:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  initminio:
+    image: minio/mc:latest
+    container_name: minio_mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 root password;
+      /usr/bin/mc mb myminio/images;
+      /usr/bin/mc anonymous set download myminio/images;
+      echo 'all done';
+      exit 0;
+      "
+
 
 volumes:
   postgres:
   pgadmin:
+  minio-storage:

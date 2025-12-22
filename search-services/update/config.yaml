@@ -5,6 +5,13 @@ db_address: postgres://postgres:password@localhost:5432/postgres
 broker_address: nats://localhost:4222
 xkcd:
   url: https://xkcd.com
-  concurrency: 10
+  concurrency: 100
   timeout: 10s
   schedule: "0 9 * * 1,3,5" # mon, wed, fri at 09:00
+minio:
+  root_user: root
+  root_password: password
+  use_ssl: false
+  bucket_name: images
+  connect_address: localhost:9000
+  public_address: localhost:9000

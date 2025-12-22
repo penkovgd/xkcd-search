@@ -72,6 +72,10 @@ type FakeXKCD struct {
 	comics map[int]XKCDInfo
 }
 
+func (xkcd *FakeXKCD) GetImage(_ context.Context, url string) ([]byte, string, error) {
+	return []byte(url), "png", nil
+}
+
 func NewFakeXKCD(infos map[int]XKCDInfo) *FakeXKCD {
 	if infos == nil {
 		infos = make(map[int]XKCDInfo)
@@ -124,4 +128,10 @@ func (p *PublisherSpy) GetPublishedMessages() []Message {
 
 func (p *PublisherSpy) ResetMessages() {
 	p.published = []Message{}
+}
+
+type ImageStorageStub struct{}
+
+func (img ImageStorageStub) Save(_ context.Context, _ string, _ []byte) (string, error) {
+	return "url", nil
 }

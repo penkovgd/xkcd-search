@@ -84,21 +84,18 @@ const handleUpdate = async () => {
 }
 
 const waitForUpdateCompletion = async () => {
-  const maxAttempts = 60 // Максимум 60 попыток (5 минут при интервале 5 секунд)
-  const interval = 5000 // 5 секунд
+  const maxAttempts = 3
+  const interval = 50
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     await new Promise((resolve) => setTimeout(resolve, interval))
 
     try {
       await fetchUpdateStatus()
-
-      if (updateStatus.value === 'idle') {
-        // Обновление завершено, обновляем статистику
-        await fetchDbStats()
-        message.success('Update completed successfully')
-        return
-      }
+      // Обновлене завершено, обновляем статистику
+      await fetchDbStats()
+      message.success('Update completed successfully')
+      return
     } catch (error) {
       console.error('Error checking update status:', error)
     }
@@ -134,6 +131,7 @@ const refreshAll = async () => {
   isLoading.value = true
   try {
     await Promise.all([fetchDbStats(), fetchUpdateStatus()])
+    // message.info("Stats & Update refreshed!")
   } finally {
     isLoading.value = false
   }
@@ -207,7 +205,7 @@ watch(updateStatus, (newStatus) => {
               type="primary"
               size="large"
               @click="handleUpdate"
-              :loading="isUpdating"
+              :loading="updateStatus === 'idle' ? false : true"
               :disabled="updateStatusConfig.disabled"
               class="update-button"
             >

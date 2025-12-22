@@ -21,6 +21,7 @@ type DB interface {
 type XKCD interface {
 	Get(context.Context, int) (XKCDInfo, error)
 	LastID(context.Context) (int, error)
+	GetImage(ctx context.Context, url string) ([]byte, string, error)
 }
 
 type Words interface {
@@ -29,4 +30,8 @@ type Words interface {
 
 type Publisher interface {
 	Publish(context.Context, Message) error
+}
+
+type ImageStorage interface {
+	Save(ctx context.Context, image string, data []byte) (string, error)
 }

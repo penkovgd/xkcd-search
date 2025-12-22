@@ -37,6 +37,7 @@ func newServiceWithMocks(t *testing.T, comics map[int]Comic, infos map[int]XKCDI
 
 	fakeDB := NewFakeDB(comics, dbDelay)
 	publisherSpy := NewPublisherSpy()
+	imgStorageStub := ImageStorageStub{}
 
 	service, err := NewService(
 		slog.Default(),
@@ -44,6 +45,7 @@ func newServiceWithMocks(t *testing.T, comics map[int]Comic, infos map[int]XKCDI
 		NewFakeXKCD(infos),
 		&FakeWords{},
 		publisherSpy,
+		imgStorageStub,
 		concurrency,
 	)
 

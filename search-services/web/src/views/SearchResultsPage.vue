@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { NInput, NButton, NSpin, NCard, NEllipsis, NTag, NText, type SelectOption } from 'naive-ui'
 import apiClient from '@/utils/axios'
@@ -42,6 +42,7 @@ const loading = ref(false)
 const imageLoading = ref<Record<number, boolean>>({})
 const errorMessage = ref<string | null>(null)
 const comics = ref<Comic[]>([])
+const imageRefs = ref<Record<number, HTMLImageElement>>({})
 
 const totalFound = computed(() => comics.value.length)
 
@@ -53,6 +54,17 @@ const paginatedComics = computed(() => {
   const endIndex = startIndex + pageSize
   return comics.value.slice(startIndex, endIndex)
 })
+
+const setImageRef = (el: HTMLImageElement | null, comicId: number) => {
+  if (el) {
+    imageRefs.value[comicId] = el
+    
+    // Проверяем, если изображение уже загружено из кеша
+    if (el.complete) {
+      imageLoading.value[comicId] = false
+    }
+  }
+}
 
 const fetchResults = async () => {
   const phrase = searchQuery.value.trim()
@@ -75,11 +87,22 @@ const fetchResults = async () => {
     comics.value = data.comics
     currentPage.value = 1
 
+    // Сбрасываем состояния загрузки
     data.comics.forEach((comic) => {
       imageLoading.value[comic.ID] = true
     })
     displayPhrase.value = phrase
     selectedMode.value = searchMode.value
+    
+    // Проверяем кешированные изображения после рендеринга
+    nextTick(() => {
+      Object.keys(imageRefs.value).forEach(id => {
+        const img = imageRefs.value[Number(id)]
+        if (img?.complete) {
+          imageLoading.value[Number(id)] = false
+        }
+      })
+    })
   } catch {
     errorMessage.value = 'Failed to load results. Please try again.'
   } finally {
@@ -89,6 +112,13 @@ const fetchResults = async () => {
 
 const handleImageLoad = (comicId: number) => {
   imageLoading.value[comicId] = false
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.src =
+    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%23f5f5f5"/><text x="150" y="200" font-family="Arial" font-size="16" text-anchor="middle" fill="%23999">Image not available</text></svg>'
+  img.onerror = null
 }
 
 const submitSearch = () => {
@@ -102,13 +132,6 @@ const submitSearch = () => {
       mode: selectedMode.value,
     },
   })
-}
-
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.src =
-    'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400" viewBox="0 0 300 400"><rect width="300" height="400" fill="%23f5f5f5"/><text x="150" y="200" font-family="Arial" font-size="16" text-anchor="middle" fill="%23999">Image not available</text></svg>'
-  img.onerror = null
 }
 
 const formatDate = (dateString: string) => {
@@ -131,7 +154,6 @@ const openComic = (comicId: number) => {
 
 const handlePageChange = (page: number) => {
   currentPage.value = page
-  // Прокрутка к верху контейнера результатов
   document.querySelector('body')?.scrollIntoView({ behavior: 'smooth' })
 }
 
@@ -196,7 +218,7 @@ onMounted(() => {
       </div>
 
       <div class="content">
-        <n-spin :show="loading">
+        <n-spin :show="loading" style="flex: 1">
           <div v-if="!loading && comics.length === 0 && !errorMessage" class="empty-state">
             No results yet. Try another phrase.
           </div>
@@ -224,6 +246,7 @@ onMounted(() => {
                   :class="{ 'image-loaded': !imageLoading[comic.ID] }"
                   @error="handleImageError"
                   @load="handleImageLoad(comic.ID)"
+                  :ref="(el) => setImageRef(el as HTMLImageElement, comic.ID)"
                   v-show="!imageLoading[comic.ID]"
                 />
               </template>
@@ -266,7 +289,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.search-container {
+  .search-container {
   /* min-height: 100vh; */
   display: flex;
   justify-content: center;
@@ -274,7 +297,6 @@ onMounted(() => {
   padding: 20px 4px 40px;
   flex: 1;
 }
-
 .results-card {
   /* background: var(--surface-bg); */
   border-radius: var(--surface-radius);
@@ -282,6 +304,8 @@ onMounted(() => {
   width: 100%;
   max-width: 900px;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -335,6 +359,9 @@ onMounted(() => {
 
 .content {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .grid {
@@ -468,5 +495,4 @@ onMounted(() => {
     margin-top: 24px;
     padding-top: 16px;
   }
-}
-</style>
+}</style>

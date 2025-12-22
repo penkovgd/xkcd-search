@@ -4,9 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
+	"mime"
 	"net/http"
+	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/penkovgd/closer"
@@ -144,4 +148,42 @@ func (c Client) LastID(ctx context.Context) (int, error) {
 	c.log.Debug("successfully fetched last id", "id", lastIDResp.Id)
 
 	return lastIDResp.Id, nil
+}
+
+func (c Client) GetImage(ctx context.Context, imageURL string) ([]byte, string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
+	if err != nil {
+		return nil, "", err
+	}
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer closer.CloseOrLog(c.log, resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, "", fmt.Errorf("fetch image: unexpected status %d", resp.StatusCode)
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	ext := chooseExtension(imageURL, contentType)
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
+	return data, ext, nil
+}
+
+func chooseExtension(imageURL, contentType string) string {
+	if contentType != "" {
+		if exts, _ := mime.ExtensionsByType(contentType); len(exts) > 0 {
+			return exts[0] // ".png", ".jpg"
+		}
+	}
+	ext := path.Ext(strings.Split(imageURL, "?")[0])
+	if ext == "" {
+		return ".bin"
+	}
+	return ext
 }

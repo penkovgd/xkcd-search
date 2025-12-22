@@ -17,6 +17,7 @@ import (
 	updatepb "yadro.com/course/proto/update"
 	"yadro.com/course/update/adapters/db"
 	updategrpc "yadro.com/course/update/adapters/grpc"
+	"yadro.com/course/update/adapters/imgstorage"
 	publisher "yadro.com/course/update/adapters/nats-publisher"
 	"yadro.com/course/update/adapters/scheduler"
 	"yadro.com/course/update/adapters/words"
@@ -75,8 +76,14 @@ func run(cfg config.Config, log *slog.Logger) error {
 	}
 	defer closer.CloseOrLog(log, publisher)
 
+	// minio image storage
+	imgStorage, err := imgstorage.New(cfg.Minio.ConnectAddress, cfg.Minio.RootUser,
+		cfg.Minio.RootPassword, cfg.Minio.BucketName, cfg.Minio.UseSSl, cfg.Minio.PublicAddress)
+	if err != nil {
+		return fmt.Errorf("failed to create minio storage: %w", err)
+	}
 	// service
-	updater, err := core.NewService(log, storage, xkcd, words, publisher, cfg.XKCD.Concurrency)
+	updater, err := core.NewService(log, storage, xkcd, words, publisher, imgStorage, cfg.XKCD.Concurrency)
 	if err != nil {
 		return fmt.Errorf("failed create Update service: %w", err)
 	}

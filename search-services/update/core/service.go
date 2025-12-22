@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"sync"
 	"sync/atomic"
 
@@ -16,12 +17,13 @@ type Service struct {
 	xkcd        XKCD
 	words       Words
 	publisher   Publisher
+	img         ImageStorage
 	concurrency int64
 	running     atomic.Bool
 }
 
 func NewService(
-	log *slog.Logger, db DB, xkcd XKCD, words Words, pub Publisher, concurrency int64,
+	log *slog.Logger, db DB, xkcd XKCD, words Words, pub Publisher, img ImageStorage, concurrency int64,
 ) (*Service, error) {
 	if concurrency < 1 {
 		return nil, fmt.Errorf("wrong concurrency specified: %d", concurrency)
@@ -32,6 +34,7 @@ func NewService(
 		xkcd:        xkcd,
 		words:       words,
 		publisher:   pub,
+		img:         img,
 		concurrency: concurrency,
 	}, nil
 }
@@ -97,7 +100,18 @@ func (s *Service) Update(ctx context.Context) error {
 				return
 			}
 
-			err = s.db.Add(ctx, Comic{ID: info.ID, URL: info.URL, Words: words, Title: info.SafeTitle, Date: info.Date})
+			imageBytes, ext, err := s.xkcd.GetImage(ctx, info.URL)
+			if err != nil {
+				s.log.Warn("failed to fetch image, skipping", "id", id, "error", err)
+				return
+			}
+			imageUrlLocal, err := s.img.Save(ctx, strconv.Itoa(info.ID)+ext, imageBytes)
+			if err != nil {
+				s.log.Warn("failed to save image, skipping", "id", id, "error", err)
+				return
+			}
+
+			err = s.db.Add(ctx, Comic{ID: info.ID, URL: imageUrlLocal, Words: words, Title: info.SafeTitle, Date: info.Date})
 			if err != nil {
 				s.log.Warn("failed to save comic to db, skipping", "id", id, "error", err)
 				return
