@@ -18,7 +18,8 @@ import (
 	"yadro.com/course/update/adapters/db"
 	updategrpc "yadro.com/course/update/adapters/grpc"
 	"yadro.com/course/update/adapters/imgstorage"
-	publisher "yadro.com/course/update/adapters/nats-publisher"
+	"yadro.com/course/update/adapters/nats/pub"
+	"yadro.com/course/update/adapters/nats/sub"
 	"yadro.com/course/update/adapters/scheduler"
 	"yadro.com/course/update/adapters/words"
 	"yadro.com/course/update/adapters/xkcd"
@@ -69,12 +70,19 @@ func run(cfg config.Config, log *slog.Logger) error {
 	}
 	defer closer.CloseOrLog(log, words)
 
-	// nats broker
-	publisher, err := publisher.New(log, cfg.BrokerAddress)
+	// nats publisher
+	publisher, err := pub.New(log, cfg.BrokerAddress)
 	if err != nil {
 		return fmt.Errorf("failed to create nats publisher: %w", err)
 	}
 	defer closer.CloseOrLog(log, publisher)
+
+	// nats subscriber
+	subscriber, err := sub.New(log, cfg.BrokerAddress, storage, 10)
+	if err != nil {
+		return fmt.Errorf("failed to create nats subscriber: %w", err)
+	}
+	defer closer.CloseOrLog(log, subscriber)
 
 	// minio image storage
 	imgStorage, err := imgstorage.New(cfg.Minio.ConnectAddress, cfg.Minio.RootUser,
@@ -95,12 +103,16 @@ func run(cfg config.Config, log *slog.Logger) error {
 	}
 
 	s := grpc.NewServer()
-	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater))
+	updatepb.RegisterUpdateServer(s, updategrpc.NewServer(updater, storage))
 	reflection.Register(s)
 
 	// context for Ctrl-C and docker
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	if err := subscriber.Start(ctx); err != nil {
+		return fmt.Errorf("subscriber start/listen: %w", err)
+	}
 
 	scheduler, err := scheduler.New(log, updater, cfg.XKCD.Schedule)
 	if err != nil {

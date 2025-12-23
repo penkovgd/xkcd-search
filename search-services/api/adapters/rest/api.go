@@ -153,6 +153,84 @@ func NewDropHandler(log *slog.Logger, updater core.Updater) http.HandlerFunc {
 	}
 }
 
+type ComicsResponse struct {
+	Comics []core.Comic `json:"comics"`
+	Total  int          `json:"total"`
+}
+
+func NewGetComicsHandler(
+	log *slog.Logger,
+	updater core.Updater,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		category := r.URL.Query().Get("category") // "" is acceptable
+
+		comics, err := updater.GetComics(r.Context(), category)
+		if err != nil {
+			log.Error(
+				"comics by category handler: get comics",
+				"category", category,
+				"error", err,
+			)
+
+			if errors.Is(err, core.ErrBadArguments) {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			http.Error(w, "failed to get comics", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(
+			ComicsResponse{
+				Comics: comics,
+				Total:  len(comics),
+			},
+		); err != nil {
+			log.Error("failed to encode reply", "error", err)
+		}
+	}
+}
+
+type CategoryStats struct {
+	Category string `json:"category"`
+	Count    int    `json:"count"`
+}
+
+type CategoriesResponse struct {
+	Categories []CategoryStats `json:"categories"`
+}
+
+func NewCategoriesHandler(
+	log *slog.Logger,
+	updater core.Updater,
+) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		stats, err := updater.GetCategories(r.Context())
+		if err != nil {
+			log.Error("categories handler: get categories", "error", err)
+			http.Error(w, "failed to get categories", http.StatusInternalServerError)
+			return
+		}
+		resp := CategoriesResponse{
+			Categories: make([]CategoryStats, 0, len(stats)),
+		}
+		for _, s := range stats {
+			resp.Categories = append(resp.Categories, CategoryStats{
+				Category: s.Category,
+				Count:    s.Count,
+			})
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Error("failed to encode categories response", "error", err)
+		}
+	}
+}
+
 type SearchResponse struct {
 	Comics []core.Comic `json:"comics"`
 	Total  int          `json:"total"`

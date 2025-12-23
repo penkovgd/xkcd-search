@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -183,11 +184,271 @@ func (x *StatusReply) GetStatus() Status {
 	return Status_STATUS_UNSPECIFIED
 }
 
+type GetComicsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Category      string                 `protobuf:"bytes,1,opt,name=category,proto3" json:"category,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetComicsRequest) Reset() {
+	*x = GetComicsRequest{}
+	mi := &file_proto_update_update_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetComicsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetComicsRequest) ProtoMessage() {}
+
+func (x *GetComicsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_update_update_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetComicsRequest.ProtoReflect.Descriptor instead.
+func (*GetComicsRequest) Descriptor() ([]byte, []int) {
+	return file_proto_update_update_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetComicsRequest) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+type Comic struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Date          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date,proto3" json:"date,omitempty"`
+	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Comic) Reset() {
+	*x = Comic{}
+	mi := &file_proto_update_update_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Comic) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Comic) ProtoMessage() {}
+
+func (x *Comic) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_update_update_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Comic.ProtoReflect.Descriptor instead.
+func (*Comic) Descriptor() ([]byte, []int) {
+	return file_proto_update_update_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *Comic) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Comic) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *Comic) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Comic) GetDate() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Date
+	}
+	return nil
+}
+
+func (x *Comic) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+type GetComicsReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Comics        []*Comic               `protobuf:"bytes,1,rep,name=comics,proto3" json:"comics,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetComicsReply) Reset() {
+	*x = GetComicsReply{}
+	mi := &file_proto_update_update_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetComicsReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetComicsReply) ProtoMessage() {}
+
+func (x *GetComicsReply) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_update_update_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetComicsReply.ProtoReflect.Descriptor instead.
+func (*GetComicsReply) Descriptor() ([]byte, []int) {
+	return file_proto_update_update_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetComicsReply) GetComics() []*Comic {
+	if x != nil {
+		return x.Comics
+	}
+	return nil
+}
+
+type CategoryStats struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Category      string                 `protobuf:"bytes,1,opt,name=category,proto3" json:"category,omitempty"`
+	Count         int64                  `protobuf:"varint,2,opt,name=count,proto3" json:"count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CategoryStats) Reset() {
+	*x = CategoryStats{}
+	mi := &file_proto_update_update_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CategoryStats) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CategoryStats) ProtoMessage() {}
+
+func (x *CategoryStats) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_update_update_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CategoryStats.ProtoReflect.Descriptor instead.
+func (*CategoryStats) Descriptor() ([]byte, []int) {
+	return file_proto_update_update_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CategoryStats) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
+func (x *CategoryStats) GetCount() int64 {
+	if x != nil {
+		return x.Count
+	}
+	return 0
+}
+
+type GetCategoriesReply struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	CategoryStats []*CategoryStats       `protobuf:"bytes,1,rep,name=category_stats,json=categoryStats,proto3" json:"category_stats,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetCategoriesReply) Reset() {
+	*x = GetCategoriesReply{}
+	mi := &file_proto_update_update_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetCategoriesReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetCategoriesReply) ProtoMessage() {}
+
+func (x *GetCategoriesReply) ProtoReflect() protoreflect.Message {
+	mi := &file_proto_update_update_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetCategoriesReply.ProtoReflect.Descriptor instead.
+func (*GetCategoriesReply) Descriptor() ([]byte, []int) {
+	return file_proto_update_update_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetCategoriesReply) GetCategoryStats() []*CategoryStats {
+	if x != nil {
+		return x.CategoryStats
+	}
+	return nil
+}
+
 var File_proto_update_update_proto protoreflect.FileDescriptor
 
 const file_proto_update_update_proto_rawDesc = "" +
 	"\n" +
-	"\x19proto/update/update.proto\x12\x06update\x1a\x1bgoogle/protobuf/empty.proto\"\x9a\x01\n" +
+	"\x19proto/update/update.proto\x12\x06update\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x9a\x01\n" +
 	"\n" +
 	"StatsReply\x12\x1f\n" +
 	"\vwords_total\x18\x01 \x01(\x03R\n" +
@@ -196,17 +457,34 @@ const file_proto_update_update_proto_rawDesc = "" +
 	"\fcomics_total\x18\x03 \x01(\x03R\vcomicsTotal\x12%\n" +
 	"\x0ecomics_fetched\x18\x04 \x01(\x03R\rcomicsFetched\"5\n" +
 	"\vStatusReply\x12&\n" +
-	"\x06status\x18\x01 \x01(\x0e2\x0e.update.StatusR\x06status*E\n" +
+	"\x06status\x18\x01 \x01(\x0e2\x0e.update.StatusR\x06status\".\n" +
+	"\x10GetComicsRequest\x12\x1a\n" +
+	"\bcategory\x18\x01 \x01(\tR\bcategory\"\x8b\x01\n" +
+	"\x05Comic\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12.\n" +
+	"\x04date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory\"7\n" +
+	"\x0eGetComicsReply\x12%\n" +
+	"\x06comics\x18\x01 \x03(\v2\r.update.ComicR\x06comics\"A\n" +
+	"\rCategoryStats\x12\x1a\n" +
+	"\bcategory\x18\x01 \x01(\tR\bcategory\x12\x14\n" +
+	"\x05count\x18\x02 \x01(\x03R\x05count\"R\n" +
+	"\x12GetCategoriesReply\x12<\n" +
+	"\x0ecategory_stats\x18\x01 \x03(\v2\x15.update.CategoryStatsR\rcategoryStats*E\n" +
 	"\x06Status\x12\x16\n" +
 	"\x12STATUS_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vSTATUS_IDLE\x10\x01\x12\x12\n" +
-	"\x0eSTATUS_RUNNING\x10\x022\xa8\x02\n" +
+	"\x0eSTATUS_RUNNING\x10\x022\xb0\x03\n" +
 	"\x06Update\x128\n" +
 	"\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x127\n" +
 	"\x06Status\x12\x16.google.protobuf.Empty\x1a\x13.update.StatusReply\"\x00\x12:\n" +
 	"\x06Update\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x125\n" +
 	"\x05Stats\x12\x16.google.protobuf.Empty\x1a\x12.update.StatsReply\"\x00\x128\n" +
-	"\x04Drop\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00B\x1fZ\x1dyadro.com/course/proto/updateb\x06proto3"
+	"\x04Drop\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x12?\n" +
+	"\tGetComics\x12\x18.update.GetComicsRequest\x1a\x16.update.GetComicsReply\"\x00\x12E\n" +
+	"\rGetCategories\x12\x16.google.protobuf.Empty\x1a\x1a.update.GetCategoriesReply\"\x00B\x1fZ\x1dyadro.com/course/proto/updateb\x06proto3"
 
 var (
 	file_proto_update_update_proto_rawDescOnce sync.Once
@@ -221,30 +499,43 @@ func file_proto_update_update_proto_rawDescGZIP() []byte {
 }
 
 var file_proto_update_update_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_proto_update_update_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_proto_update_update_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_proto_update_update_proto_goTypes = []any{
-	(Status)(0),           // 0: update.Status
-	(*StatsReply)(nil),    // 1: update.StatsReply
-	(*StatusReply)(nil),   // 2: update.StatusReply
-	(*emptypb.Empty)(nil), // 3: google.protobuf.Empty
+	(Status)(0),                   // 0: update.Status
+	(*StatsReply)(nil),            // 1: update.StatsReply
+	(*StatusReply)(nil),           // 2: update.StatusReply
+	(*GetComicsRequest)(nil),      // 3: update.GetComicsRequest
+	(*Comic)(nil),                 // 4: update.Comic
+	(*GetComicsReply)(nil),        // 5: update.GetComicsReply
+	(*CategoryStats)(nil),         // 6: update.CategoryStats
+	(*GetCategoriesReply)(nil),    // 7: update.GetCategoriesReply
+	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*emptypb.Empty)(nil),         // 9: google.protobuf.Empty
 }
 var file_proto_update_update_proto_depIdxs = []int32{
-	0, // 0: update.StatusReply.status:type_name -> update.Status
-	3, // 1: update.Update.Ping:input_type -> google.protobuf.Empty
-	3, // 2: update.Update.Status:input_type -> google.protobuf.Empty
-	3, // 3: update.Update.Update:input_type -> google.protobuf.Empty
-	3, // 4: update.Update.Stats:input_type -> google.protobuf.Empty
-	3, // 5: update.Update.Drop:input_type -> google.protobuf.Empty
-	3, // 6: update.Update.Ping:output_type -> google.protobuf.Empty
-	2, // 7: update.Update.Status:output_type -> update.StatusReply
-	3, // 8: update.Update.Update:output_type -> google.protobuf.Empty
-	1, // 9: update.Update.Stats:output_type -> update.StatsReply
-	3, // 10: update.Update.Drop:output_type -> google.protobuf.Empty
-	6, // [6:11] is the sub-list for method output_type
-	1, // [1:6] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0,  // 0: update.StatusReply.status:type_name -> update.Status
+	8,  // 1: update.Comic.date:type_name -> google.protobuf.Timestamp
+	4,  // 2: update.GetComicsReply.comics:type_name -> update.Comic
+	6,  // 3: update.GetCategoriesReply.category_stats:type_name -> update.CategoryStats
+	9,  // 4: update.Update.Ping:input_type -> google.protobuf.Empty
+	9,  // 5: update.Update.Status:input_type -> google.protobuf.Empty
+	9,  // 6: update.Update.Update:input_type -> google.protobuf.Empty
+	9,  // 7: update.Update.Stats:input_type -> google.protobuf.Empty
+	9,  // 8: update.Update.Drop:input_type -> google.protobuf.Empty
+	3,  // 9: update.Update.GetComics:input_type -> update.GetComicsRequest
+	9,  // 10: update.Update.GetCategories:input_type -> google.protobuf.Empty
+	9,  // 11: update.Update.Ping:output_type -> google.protobuf.Empty
+	2,  // 12: update.Update.Status:output_type -> update.StatusReply
+	9,  // 13: update.Update.Update:output_type -> google.protobuf.Empty
+	1,  // 14: update.Update.Stats:output_type -> update.StatsReply
+	9,  // 15: update.Update.Drop:output_type -> google.protobuf.Empty
+	5,  // 16: update.Update.GetComics:output_type -> update.GetComicsReply
+	7,  // 17: update.Update.GetCategories:output_type -> update.GetCategoriesReply
+	11, // [11:18] is the sub-list for method output_type
+	4,  // [4:11] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_proto_update_update_proto_init() }
@@ -258,7 +549,7 @@ func file_proto_update_update_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_update_update_proto_rawDesc), len(file_proto_update_update_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -15,6 +15,8 @@ type Updater interface {
 	Stats(context.Context) (UpdateStats, error)
 	Status(context.Context) (UpdateStatus, error)
 	Drop(context.Context) error
+	GetComics(context.Context, string) ([]Comic, error)
+	GetCategories(context.Context) ([]CategoryStats, error)
 }
 
 type Searcher interface {

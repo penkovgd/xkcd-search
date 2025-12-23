@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { NInput, NButton, NSpin, type SelectOption } from 'naive-ui'
-import ComicsCard from '@/components/ComicsCard.vue'
+import {
+  NInput,
+  NButton,
+  NSpin,
+  NSelect,
+  type SelectOption,
+  NPagination,
+} from 'naive-ui'
 import apiClient from '@/utils/axios'
+
+import ComicsCard from '@/components/ComicsCard.vue'
 import CategoriesPanelComponent from '@/components/CategoriesPanelComponent.vue'
 
 type Comic = {
@@ -13,17 +21,11 @@ type Comic = {
   Date: string
   Category: string
 }
-type SearchResponse = {
+
+type ComicsResponse = {
   comics: Comic[]
   total: number
 }
-
-const route = useRoute()
-const router = useRouter()
-
-const searchQuery = ref<string>((route.query.phrase as string) || '')
-const searchMode = ref<string>((route.query.mode as string) || '')
-const selectedMode = ref<string>((route.query.mode as string) || '')
 
 const modeOptions: SelectOption[] = [
   {
@@ -36,15 +38,18 @@ const modeOptions: SelectOption[] = [
   },
 ]
 
-const apiEndpoint = computed(() => {
-  return searchMode.value === 'index' ? '/api/isearch' : '/api/search'
-})
+const route = useRoute()
+const router = useRouter()
 
-const displayPhrase = ref<string>((route.query.phrase as string) || '')
+const searchQuery = ref('')
+const selectedMode = ref('default')
+
+const category = ref<string>((route.params.category as string) || '')
+
 const loading = ref(false)
 const imageLoading = ref<Record<number, boolean>>({})
-const errorMessage = ref<string | null>(null)
 const comics = ref<Comic[]>([])
+const errorMessage = ref<string | null>(null)
 const imageRefs = ref<Record<number, HTMLImageElement>>({})
 
 const totalFound = computed(() => comics.value.length)
@@ -61,43 +66,28 @@ const paginatedComics = computed(() => {
 const setImageRef = (el: HTMLImageElement | null, comicId: number) => {
   if (el) {
     imageRefs.value[comicId] = el
-    
-    // Проверяем, если изображение уже загружено из кеша
     if (el.complete) {
       imageLoading.value[comicId] = false
     }
   }
 }
 
-const fetchResults = async () => {
-  const phrase = searchQuery.value.trim()
-  if (!phrase) {
-    comics.value = []
-    return
-  }
-
+const fetchCategoryComics = async () => {
   loading.value = true
   errorMessage.value = null
 
   try {
-    const { data } = await apiClient.get<SearchResponse>(apiEndpoint.value, {
-      params: {
-        phrase: phrase,
-        limit: 5000,
-      },
+    const { data } = await apiClient.get<ComicsResponse>('/api/comics', {
+      params: { category: category.value },
     })
 
     comics.value = data.comics
     currentPage.value = 1
 
-    // Сбрасываем состояния загрузки
-    data.comics.forEach((comic) => {
+    comics.value.forEach((comic) => {
       imageLoading.value[comic.ID] = true
     })
-    displayPhrase.value = phrase
-    selectedMode.value = searchMode.value
-    
-    // Проверяем кешированные изображения после рендеринга
+
     nextTick(() => {
       Object.keys(imageRefs.value).forEach(id => {
         const img = imageRefs.value[Number(id)]
@@ -107,7 +97,8 @@ const fetchResults = async () => {
       })
     })
   } catch {
-    errorMessage.value = 'Failed to load results. Please try again.'
+    errorMessage.value = 'Failed to load comics. Please try again.'
+    comics.value = []
   } finally {
     loading.value = false
   }
@@ -148,17 +139,15 @@ const handlePageChange = (page: number) => {
 }
 
 watch(
-  () => route.query,
-  (newQuery) => {
-    searchQuery.value = (newQuery.phrase as string) || ''
-    searchMode.value = (newQuery.mode as string) || 'default'
-    fetchResults()
-  },
-  { immediate: true },
+  () => route.params.category,
+  (newCat) => {
+    category.value = (newCat as string) || ''
+    fetchCategoryComics()
+  }
 )
 
 onMounted(() => {
-  fetchResults()
+  fetchCategoryComics()
 })
 </script>
 
@@ -167,7 +156,7 @@ onMounted(() => {
     <div class="layout-wrapper">
       <CategoriesPanelComponent class="categories-panel"/>
       <div class="results-card surface">
-        <!-- Header with logo and search -->
+        <!-- Header with logo and search (same as SearchResultsPage) -->
         <div class="header">
           <div class="logo" @click="router.push('/')">
             <img src="/logo.png" alt="xkcd logo" />
@@ -200,18 +189,20 @@ onMounted(() => {
           </div>
         </div>
   
-        <!-- Results title -->
+        <!-- Category Title -->
         <div class="results-title">
-          <h2>Results for search: "{{ displayPhrase || '...' }}"</h2>
+          <h2 v-if="category == ''">All comics</h2>
+          <h2 v-else>Category: "{{ category }}"</h2>
           <h3 v-if="!loading && !errorMessage" style="color: var(--text-gray); font-weight: 100">
-            {{ totalFound }} result(s) found
+            {{ totalFound }} comic(s) in this category
           </h3>
           <p v-if="errorMessage" class="error-text">{{ errorMessage }}</p>
         </div>
+  
         <div class="content">
           <n-spin :show="loading" style="flex: 1">
             <div v-if="!loading && comics.length === 0 && !errorMessage" class="empty-state">
-              No results yet. Try another phrase.
+              No comics in this category.
             </div>
   
             <div class="grid" v-else>
@@ -227,6 +218,7 @@ onMounted(() => {
               />
             </div>
           </n-spin>
+  
           <div class="pagination-container">
             <n-pagination
               simple
@@ -237,7 +229,6 @@ onMounted(() => {
             />
           </div>
         </div>
-       
       </div>
     </div>
   </div>
@@ -254,8 +245,7 @@ onMounted(() => {
 .categories-panel {
   width: 300px;
 }
-
-.search-container {
+  .search-container {
   /* min-height: 100vh; */
   display: flex;
   justify-content: center;
@@ -453,7 +443,7 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .layout-wrapper {
+.layout-wrapper {
     flex-direction: column-reverse;
     align-items: center;
     max-height: fit-content;

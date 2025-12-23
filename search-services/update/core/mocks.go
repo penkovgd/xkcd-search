@@ -68,6 +68,18 @@ func (db *FakeDB) IDs(_ context.Context) ([]int, error) {
 	return slices.Collect(maps.Keys(db.Comics)), nil
 }
 
+func (db *FakeDB) UpdateCategory(ctx context.Context, comicID int, category string) error {
+	return nil
+}
+
+func (db *FakeDB) GetCategories(context.Context) ([]CategoryStats, error) {
+	return []CategoryStats{}, nil
+}
+
+func (db *FakeDB) GetComics(ctx context.Context, category string) ([]Comic, error) {
+	return []Comic{}, nil
+}
+
 type FakeXKCD struct {
 	comics map[int]XKCDInfo
 }

@@ -4,7 +4,7 @@
   --color-primary: #6e7b91;
   --color-dark: #333;
   --color-gray: #767676;
-  --color-link: #96a8c8;
+  --color-link: rgb(150, 168, 200);
   
   /* Surface */
   --surface-bg: #ffffff;

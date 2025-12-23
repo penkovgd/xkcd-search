@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -115,4 +116,65 @@ func (db *DB) Drop(ctx context.Context) error {
 	}
 	db.log.Debug("successfully deleted all comics")
 	return nil
+}
+
+func (db *DB) UpdateCategory(ctx context.Context, comicID int, category string) error {
+	res, err := db.conn.ExecContext(ctx,
+		`UPDATE comics
+		 SET category = $1
+		 WHERE id = $2`,
+		category, comicID,
+	)
+	if err != nil {
+		db.log.Error("failed to update category", "comic_id", comicID, "error", err)
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		db.log.Error("failed to get number of rows affected", "comic_id", comicID, "error", err)
+		return err
+	}
+
+	if rowsAffected == 0 {
+		db.log.Debug("no comic found to update category", "comic_id", comicID)
+	} else {
+		db.log.Info("successfully updated comic category", "comic_id", comicID, "category", category)
+	}
+
+	return nil
+}
+
+func (db *DB) GetComics(ctx context.Context, category string) ([]core.Comic, error) {
+	var query string
+	var comics []core.Comic
+	var err error
+	if category == "" {
+		query = `SELECT id, url, date, title, category FROM comics ORDER BY date DESC`
+		err = db.conn.SelectContext(ctx, &comics, query)
+	} else {
+		query = `SELECT id, url, date, title, category FROM comics WHERE category = $1 ORDER BY date DESC`
+		err = db.conn.SelectContext(ctx, &comics, query, category)
+	}
+
+	if err != nil {
+		return []core.Comic{}, fmt.Errorf("select comics: %w", err)
+	}
+	return comics, nil
+}
+
+func (db *DB) GetCategories(ctx context.Context) ([]core.CategoryStats, error) {
+	var stats []core.CategoryStats
+	query := `
+        SELECT category, COUNT(*) AS count
+        FROM comics
+        GROUP BY category
+        ORDER BY count DESC
+    `
+	err := db.conn.SelectContext(ctx, &stats, query)
+	if err != nil {
+		return nil, fmt.Errorf("select category stats: %w", err)
+	}
+
+	return stats, nil
 }

@@ -16,6 +16,9 @@ type DB interface {
 	Stats(context.Context) (DBStats, error)
 	Drop(context.Context) error
 	IDs(context.Context) ([]int, error)
+	UpdateCategory(ctx context.Context, comicID int, category string) error
+	GetComics(ctx context.Context, category string) ([]Comic, error)
+	GetCategories(context.Context) ([]CategoryStats, error)
 }
 
 type XKCD interface {

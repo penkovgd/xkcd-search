@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NTabs, NTabPane, NInput } from 'naive-ui'
+import CategoriesPanelComponent from '@/components/CategoriesPanelComponent.vue'
 
 const router = useRouter()
 const searchType = ref('default')
@@ -27,36 +28,51 @@ const goToHome = () => {
 
 <template>
   <div class="home-container">
-    <div class="content-card surface">
-      <!-- Logo -->
-      <div class="logo-container" @click="goToHome">
-        <img class="logo-image" src="/logo.png" alt="xkcd logo" />
-      </div>
-
-      <!-- Tabs -->
-      <div class="tabs-container">
-        <n-tabs v-model:value="searchType" type="line" size="large" justify-content="space-evenly">
-          <n-tab-pane name="default" tab="Default search" style="font-weight: 600" />
-          <n-tab-pane name="index" tab="Index search" />
-        </n-tabs>
-      </div>
-
-      <!-- Search Input -->
-      <div class="search-container">
-        <n-input
-          v-model:value="searchValue"
-          placeholder="Search for comics.."
-          size="large"
-          @keyup.enter="handleSearch"
-        >
-        </n-input>
-        <n-button color="#6e7b91" class="search-button" @click="handleSearch">Search!</n-button>
+    <div class="layout-wrapper">
+      <categories-panel-component class="categories-panel"/>
+      <div class="content-card surface">
+        <!-- Logo -->
+        <div class="logo-container" @click="goToHome">
+          <img class="logo-image" src="/logo.png" alt="xkcd logo" />
+        </div>
+  
+        <!-- Tabs -->
+        <div class="tabs-container">
+          <n-tabs v-model:value="searchType" type="line" size="large" justify-content="space-evenly">
+            <n-tab-pane name="default" tab="Default search" style="font-weight: 600" />
+            <n-tab-pane name="index" tab="Index search" />
+          </n-tabs>
+        </div>
+  
+        <!-- Search Input -->
+        <div class="search-container">
+          <n-input
+            v-model:value="searchValue"
+            placeholder="Search for comics.."
+            size="large"
+            @keyup.enter="handleSearch"
+          >
+          </n-input>
+          <n-button color="#6e7b91" class="search-button" @click="handleSearch">Search!</n-button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.layout-wrapper {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+  max-height: 480px;
+}
+
+.categories-panel {
+  width: 300px;
+}
+
 .home-container {
   /* min-height: 100vh; */
   display: flex;
@@ -77,6 +93,15 @@ const goToHome = () => {
 }
 
 @media (max-width: 768px) {
+  .layout-wrapper {
+    flex-direction: column-reverse;
+    align-items: center;
+    max-height: fit-content;
+  }
+  .categories-panel {
+    width: 600px;
+  }
+
   .content-card {
     padding: 30px 20px;
   }

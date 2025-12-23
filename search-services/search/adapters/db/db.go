@@ -26,17 +26,18 @@ func New(log *slog.Logger, address string) (*DB, error) {
 }
 
 type ComicDB struct {
-	Id    int            `db:"id"`
-	Url   string         `db:"url"`
-	Words pq.StringArray `db:"words"`
-	Title string         `db:"title"`
-	Date  time.Time      `db:"date"`
+	Id       int            `db:"id"`
+	Url      string         `db:"url"`
+	Words    pq.StringArray `db:"words"`
+	Title    string         `db:"title"`
+	Date     time.Time      `db:"date"`
+	Category string         `db:"category"`
 }
 
 func (db *DB) GetAll(ctx context.Context) ([]core.Comic, error) {
 	var comicsDB []ComicDB
 	if err := db.db.SelectContext(ctx, &comicsDB,
-		`SELECT * FROM public.comics
+		`SELECT id, url, words, title, date, category FROM public.comics
 		ORDER BY id ASC`,
 	); err != nil {
 		return nil, fmt.Errorf("get all comics: %w", err)
@@ -46,11 +47,12 @@ func (db *DB) GetAll(ctx context.Context) ([]core.Comic, error) {
 	var comics []core.Comic
 	for _, c := range comicsDB {
 		comics = append(comics, core.Comic{
-			Id:    c.Id,
-			Url:   c.Url,
-			Words: c.Words,
-			Date:  c.Date,
-			Title: c.Title,
+			Id:       c.Id,
+			Url:      c.Url,
+			Words:    c.Words,
+			Date:     c.Date,
+			Title:    c.Title,
+			Category: c.Category,
 		})
 	}
 

@@ -18,8 +18,14 @@ type UpdateStats struct {
 }
 
 type Comic struct {
-	ID    int
-	URL   string
-	Title string
-	Date  time.Time
+	ID       int
+	URL      string
+	Title    string
+	Date     time.Time
+	Category string
+}
+
+type CategoryStats struct {
+	Category string
+	Count    int
 }

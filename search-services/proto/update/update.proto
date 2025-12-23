@@ -3,6 +3,7 @@ syntax = "proto3";
 package update;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 option go_package = "yadro.com/course/proto/update";
 
@@ -23,6 +24,31 @@ message StatusReply {
   Status status = 1;
 }
 
+message GetComicsRequest {
+  string category = 1;
+}
+
+message Comic {
+  int64 id = 1;
+  string url = 2;
+  string title = 3;
+  google.protobuf.Timestamp date = 4;
+  string category = 5;
+}
+
+message GetComicsReply {
+  repeated Comic comics = 1;
+}
+
+message CategoryStats {
+  string category = 1;
+  int64 count = 2;
+}
+
+message GetCategoriesReply {
+  repeated CategoryStats category_stats = 1;
+}
+
 service Update {
   rpc Ping(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
@@ -33,4 +59,8 @@ service Update {
   rpc Stats(google.protobuf.Empty) returns (StatsReply) {}
 
   rpc Drop(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  rpc GetComics(GetComicsRequest) returns (GetComicsReply) {}
+
+  rpc GetCategories(google.protobuf.Empty) returns (GetCategoriesReply) {}
 }

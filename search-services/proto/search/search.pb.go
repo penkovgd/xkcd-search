@@ -125,6 +125,7 @@ type Comic struct {
 	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
 	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	Date          *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=date,proto3" json:"date,omitempty"`
+	Category      string                 `protobuf:"bytes,5,opt,name=category,proto3" json:"category,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -187,6 +188,13 @@ func (x *Comic) GetDate() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Comic) GetCategory() string {
+	if x != nil {
+		return x.Category
+	}
+	return ""
+}
+
 var File_proto_search_search_proto protoreflect.FileDescriptor
 
 const file_proto_search_search_proto_rawDesc = "" +
@@ -196,12 +204,13 @@ const file_proto_search_search_proto_rawDesc = "" +
 	"\x06phrase\x18\x01 \x01(\tR\x06phrase\x12\x14\n" +
 	"\x05limit\x18\x02 \x01(\x03R\x05limit\"4\n" +
 	"\vSearchReply\x12%\n" +
-	"\x06comics\x18\x01 \x03(\v2\r.search.ComicR\x06comics\"o\n" +
+	"\x06comics\x18\x01 \x03(\v2\r.search.ComicR\x06comics\"\x8b\x01\n" +
 	"\x05Comic\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
 	"\x03url\x18\x02 \x01(\tR\x03url\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12.\n" +
-	"\x04date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04date2\xb7\x01\n" +
+	"\x04date\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x04date\x12\x1a\n" +
+	"\bcategory\x18\x05 \x01(\tR\bcategory2\xb7\x01\n" +
 	"\x06Search\x128\n" +
 	"\x04Ping\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x126\n" +
 	"\x06Search\x12\x15.search.SearchRequest\x1a\x13.search.SearchReply\"\x00\x12;\n" +

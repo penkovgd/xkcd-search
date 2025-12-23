@@ -20,11 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Update_Ping_FullMethodName   = "/update.Update/Ping"
-	Update_Status_FullMethodName = "/update.Update/Status"
-	Update_Update_FullMethodName = "/update.Update/Update"
-	Update_Stats_FullMethodName  = "/update.Update/Stats"
-	Update_Drop_FullMethodName   = "/update.Update/Drop"
+	Update_Ping_FullMethodName          = "/update.Update/Ping"
+	Update_Status_FullMethodName        = "/update.Update/Status"
+	Update_Update_FullMethodName        = "/update.Update/Update"
+	Update_Stats_FullMethodName         = "/update.Update/Stats"
+	Update_Drop_FullMethodName          = "/update.Update/Drop"
+	Update_GetComics_FullMethodName     = "/update.Update/GetComics"
+	Update_GetCategories_FullMethodName = "/update.Update/GetCategories"
 )
 
 // UpdateClient is the client API for Update service.
@@ -36,6 +38,8 @@ type UpdateClient interface {
 	Update(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	Stats(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*StatsReply, error)
 	Drop(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GetComics(ctx context.Context, in *GetComicsRequest, opts ...grpc.CallOption) (*GetComicsReply, error)
+	GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesReply, error)
 }
 
 type updateClient struct {
@@ -96,6 +100,26 @@ func (c *updateClient) Drop(ctx context.Context, in *emptypb.Empty, opts ...grpc
 	return out, nil
 }
 
+func (c *updateClient) GetComics(ctx context.Context, in *GetComicsRequest, opts ...grpc.CallOption) (*GetComicsReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetComicsReply)
+	err := c.cc.Invoke(ctx, Update_GetComics_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *updateClient) GetCategories(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetCategoriesReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetCategoriesReply)
+	err := c.cc.Invoke(ctx, Update_GetCategories_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UpdateServer is the server API for Update service.
 // All implementations must embed UnimplementedUpdateServer
 // for forward compatibility.
@@ -105,6 +129,8 @@ type UpdateServer interface {
 	Update(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	Stats(context.Context, *emptypb.Empty) (*StatsReply, error)
 	Drop(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GetComics(context.Context, *GetComicsRequest) (*GetComicsReply, error)
+	GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesReply, error)
 	mustEmbedUnimplementedUpdateServer()
 }
 
@@ -129,6 +155,12 @@ func (UnimplementedUpdateServer) Stats(context.Context, *emptypb.Empty) (*StatsR
 }
 func (UnimplementedUpdateServer) Drop(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "method Drop not implemented")
+}
+func (UnimplementedUpdateServer) GetComics(context.Context, *GetComicsRequest) (*GetComicsReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetComics not implemented")
+}
+func (UnimplementedUpdateServer) GetCategories(context.Context, *emptypb.Empty) (*GetCategoriesReply, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetCategories not implemented")
 }
 func (UnimplementedUpdateServer) mustEmbedUnimplementedUpdateServer() {}
 func (UnimplementedUpdateServer) testEmbeddedByValue()                {}
@@ -241,6 +273,42 @@ func _Update_Drop_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Update_GetComics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetComicsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdateServer).GetComics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Update_GetComics_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdateServer).GetComics(ctx, req.(*GetComicsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Update_GetCategories_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdateServer).GetCategories(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Update_GetCategories_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdateServer).GetCategories(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Update_ServiceDesc is the grpc.ServiceDesc for Update service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +335,14 @@ var Update_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Drop",
 			Handler:    _Update_Drop_Handler,
+		},
+		{
+			MethodName: "GetComics",
+			Handler:    _Update_GetComics_Handler,
+		},
+		{
+			MethodName: "GetCategories",
+			Handler:    _Update_GetCategories_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

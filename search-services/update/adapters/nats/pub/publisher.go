@@ -1,4 +1,4 @@
-package publisher
+package pub
 
 import (
 	"context"

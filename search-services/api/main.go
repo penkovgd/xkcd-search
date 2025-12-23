@@ -74,6 +74,8 @@ func run(cfg config.Config, log *slog.Logger) error {
 	mux.Handle("POST /api/db/update", middleware.Auth(rest.NewUpdateHandler(log, updateClient), aaa))
 	mux.Handle("GET /api/db/stats", rest.NewUpdateStatsHandler(log, updateClient))
 	mux.Handle("GET /api/db/status", rest.NewUpdateStatusHandler(log, updateClient))
+	mux.Handle("GET /api/comics", middleware.Rate(rest.NewGetComicsHandler(log, updateClient), cfg.SearchRate))
+	mux.Handle("GET /api/categories", middleware.Rate(rest.NewCategoriesHandler(log, updateClient), cfg.SearchRate))
 	mux.Handle("DELETE /api/db", middleware.Auth(rest.NewDropHandler(log, updateClient), aaa))
 	mux.Handle("GET /api/search", middleware.Concurrency(rest.NewSearchHandler(log, searchClient), cfg.SearchConcurrency))
 	mux.Handle("GET /api/isearch", middleware.Rate(rest.NewSearchIndexHandler(log, searchClient), cfg.SearchRate))

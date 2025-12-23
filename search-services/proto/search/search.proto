@@ -21,6 +21,7 @@ message Comic {
   string url = 2;
   string title = 3;
   google.protobuf.Timestamp date = 4;
+  string category = 5;
 }
 
 service Search {

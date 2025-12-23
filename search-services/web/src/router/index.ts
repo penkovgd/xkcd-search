@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '../views/HomePage.vue'
-import Login from '../views/LoginPage.vue'
-import SearchResults from '../views/SearchResultsPage.vue'
+import Home from '@/views/HomePage.vue'
+import Login from '@/views/LoginPage.vue'
+import SearchResults from '@/views/SearchResultsPage.vue'
 import AdminPanelPage from '@/views/AdminPanelPage.vue'
+import CategoryComicsPage from '@/views/CategoryComicsPage.vue'
 import { isTokenValid } from '@/utils/auth'
 
 const router = createRouter({
@@ -29,7 +30,16 @@ const router = createRouter({
       name: 'search',
       component: SearchResults,
     },
+    {
+      path: '/category/:category?',
+      name: 'category',
+      component: CategoryComicsPage,
+      props: true,
+    },
   ],
+   scrollBehavior() {
+    return { top: 0 }
+  }
 })
 
 router.beforeEach((to, from, next) => {

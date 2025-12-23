@@ -20,12 +20,18 @@ type ServiceStats struct {
 	ComicsTotal int
 }
 
+type CategoryStats struct {
+	Category string
+	Count    int
+}
+
 type Comic struct {
-	ID    int
-	URL   string
-	Words []string
-	Date  time.Time
-	Title string
+	ID       int
+	URL      string
+	Words    []string
+	Date     time.Time
+	Title    string
+	Category string
 }
 
 type XKCDInfo struct {

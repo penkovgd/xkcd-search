@@ -10,3 +10,4 @@ api_server:
   timeout: 5s
 cors_allowed_origins:
   - http://localhost:5173
+  - http://localhost

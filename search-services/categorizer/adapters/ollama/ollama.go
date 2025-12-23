@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/penkovgd/closer"
@@ -99,36 +100,56 @@ func (c *Categorizer) Categorize(ctx context.Context, comic core.Comic) (string,
 		return "", fmt.Errorf("no category in response")
 	}
 
+	if !slices.Contains(core.GetCategories(), structOut.Category) {
+		return "Other", nil
+	}
+
 	// c.log.Debug("successfully categorized", "comic", comic.URL, "categoty", structOut.Category)
 
 	return structOut.Category, nil
 }
 func makePrompt(comic core.Comic) string {
-	var b strings.Builder
+	prompt := `You are a content categorization assistant for xkcd-style comics. 
+	Your task is to select the SINGLE most appropriate category from the provided list.
 
-	b.WriteString("Assign exactly one category to this comic. ")
-	b.WriteString("\n\n")
+	**INSTRUCTIONS:**
+	1. Analyze the comic's metadata carefully
+	2. Choose ONE category from the allowed list below
+	3. Prioritize specificity - if a comic fits a specific category, choose it over broad ones
+	4. Reserve "Other" ONLY when the comic genuinely doesn't align with any other category's theme
+	5. Consider both the title and keywords for context
+	6. Return ONLY the category name without explanations, formatting, or additional text
 
-	var parts []string
-	for _, c := range core.GetCategories() {
-		name := string(c)
+	**CATEGORIES WITH DESCRIPTIONS:`
+
+	// Build categories section
+	var categories []string
+	for _, cat := range core.GetCategories() {
+		name := string(cat)
 		desc := strings.TrimSpace(core.CategoriesDesc[name])
 		if desc != "" {
-			parts = append(parts, fmt.Sprintf("%s", name))
-			//parts = append(parts, fmt.Sprintf("%s (%s)", name, desc))
-
+			categories = append(categories, fmt.Sprintf("- %s: %s", name, desc))
 		} else {
-			parts = append(parts, name)
+			categories = append(categories, fmt.Sprintf("- %s", name))
 		}
 	}
-	b.WriteString("Categories: " + strings.Join(parts, ", "))
-	b.WriteString("\n\n")
 
-	b.WriteString("Title: " + strings.TrimSpace(comic.Title) + "\n")
+	prompt += "\n" + strings.Join(categories, "\n") + "\n\n"
+
+	prompt += `**COMIC TO CATEGORIZE:**
+	Title: "` + strings.TrimSpace(comic.Title) + `"`
+
 	if len(comic.Words) > 0 {
-		b.WriteString("Words: " + strings.Join(comic.Words, " ") + "\n")
-	} else {
-		b.WriteString("Words: \n")
+		prompt += "\nKeywords: " + strings.Join(comic.Words, ", ")
 	}
-	return b.String()
+
+	prompt += `
+
+	**REMEMBER:**
+	- Output ONLY the category name (e.g., "Programming & IT")
+	- Do not add any other text
+	- Choose the MOST SPECIFIC applicable category
+	- Use "Other" sparingly - when truly no category fits`
+
+	return prompt
 }

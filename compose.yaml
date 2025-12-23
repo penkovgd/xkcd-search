@@ -52,6 +52,7 @@ services:
     volumes:
       - ./search-services/update/config.yaml:/config.yaml
     environment:
+      - LOG_LEVEL=INFO
       - UPDATE_ADDRESS=:8080
       - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
       - XKCD_URL=https://xkcd.com
@@ -119,6 +120,18 @@ services:
       nats:
         condition: service_started
 
+  web:
+    image: web:latest
+    build:
+      context: search-services
+      dockerfile: Dockerfile.web  
+    container_name: web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      -    VITE_API_BASE_URL=http://api:28080
+
   categorizer:
     image: categorizer:latest
     build:
@@ -131,9 +144,10 @@ services:
     volumes:
       - ./search-services/categorizer/config.yaml:/config.yaml
     environment:
+      - LOG_LEVEL=INFO 
       - CATEGORIZER_ADDRESS=:8080
       - OLLAMA_URL=http://ollama:11434
-      - CONCURRENCY=10
+      - CONCURRENCY=2
       - BROKER_ADDRESS=nats://nats:4222
     depends_on:
       nats:
@@ -214,7 +228,6 @@ services:
       echo 'all done';
       exit 0;
       "
-
 
 volumes:
   postgres:

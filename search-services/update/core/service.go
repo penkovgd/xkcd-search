@@ -129,7 +129,7 @@ func (s *Service) Update(ctx context.Context) error {
 				s.log.Warn("failed to publish xkcd.db.added_comic message, skipping", "id", id, "error", err)
 				return
 			}
-			s.log.Info("emitted message", "message", "xkcd.db.added_comic")
+			s.log.Debug("emitted message", "message", "xkcd.db.added_comic")
 
 			added++
 		})
@@ -139,7 +139,7 @@ func (s *Service) Update(ctx context.Context) error {
 	if err != nil {
 		s.log.Warn("publish message", "error", err)
 	}
-	s.log.Info("emitted message", "message", "xkcd.db.updated", "added", added)
+	s.log.Debug("emitted message", "message", "xkcd.db.updated", "added", added)
 	return nil
 }
 

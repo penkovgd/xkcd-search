@@ -230,7 +230,9 @@ watch(updateStatus, (newStatus) => {
                   Drop DB
                 </n-button>
               </template>
-              Warning! This action will delete all data from the database. Continue?
+              Warning!<br>
+              This action will delete all data from the database.<br>
+              Continue?
             </n-popconfirm>
           </div>
         </n-space>

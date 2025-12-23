@@ -9,13 +9,12 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	"yadro.com/course/categorizer/core"
+	"yadro.com/course/update/core"
 )
 
-const subSubject = "xkcd.db.added_comic"
-const pubSubject = "xkcd.categorizer.categorized"
+const subSubject = "xkcd.categorizer.categorized"
 
-type pubPayload struct {
+type subPayload struct {
 	ComicID  int
 	Category string
 }
@@ -23,16 +22,15 @@ type pubPayload struct {
 type Subsciber struct {
 	log          *slog.Logger
 	nc           *nats.Conn
+	db           core.DB
 	subscription *nats.Subscription
-	categorizer  core.Categorizer
-	pub          core.Publisher
 	wg           sync.WaitGroup
 	workers      chan struct{}
 	ctx          context.Context
 	cancel       context.CancelFunc
 }
 
-func New(log *slog.Logger, url string, cat core.Categorizer, pub core.Publisher, maxWorkers int) (*Subsciber, error) {
+func New(log *slog.Logger, url string, db core.DB, maxWorkers int) (*Subsciber, error) {
 	nc, err := nats.Connect(url)
 	if err != nil {
 		return nil, fmt.Errorf("connect to nats on address: %s: %w", url, err)
@@ -41,13 +39,12 @@ func New(log *slog.Logger, url string, cat core.Categorizer, pub core.Publisher,
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &Subsciber{
-		log:         log,
-		nc:          nc,
-		categorizer: cat,
-		pub:         pub,
-		workers:     make(chan struct{}, maxWorkers),
-		ctx:         ctx,
-		cancel:      cancel,
+		log:     log,
+		nc:      nc,
+		db:      db,
+		workers: make(chan struct{}, maxWorkers),
+		ctx:     ctx,
+		cancel:  cancel,
 	}, nil
 }
 
@@ -79,34 +76,18 @@ func (s *Subsciber) processMessage(msg *nats.Msg) {
 		return
 	}
 
-	var comic core.Comic
-	if err := json.Unmarshal(msg.Data, &comic); err != nil {
+	var payload subPayload
+	if err := json.Unmarshal(msg.Data, &payload); err != nil {
 		s.log.Error("unmarshal message payload", "err", err)
 		return
 	}
-	ctx, cancel := context.WithTimeout(s.ctx, 180*time.Second)
+	ctx, cancel := context.WithTimeout(s.ctx, 30*time.Second)
 	defer cancel()
 
-	category, err := s.categorizer.Categorize(ctx, comic)
-	if err != nil {
-		s.log.Error("categorize comic", "error", err, "comic_id", comic.ID)
+	if err := s.db.UpdateCategory(ctx, payload.ComicID, payload.Category); err != nil {
+		s.log.Error("update comic category", "error", err, "comic_id", payload.ComicID)
 		return
 	}
-
-	payload := pubPayload{ComicID: comic.ID, Category: category}
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		s.log.Error("marshal payload to publish", "error", err)
-		return
-	}
-
-	err = s.pub.Publish(ctx, core.Message{Subject: pubSubject, Payload: payloadBytes})
-	if err != nil {
-		s.log.Error("publish message", "error", err)
-		return
-	}
-
-	s.log.Info("successfully processed comic", "comic_id", comic.ID, "category", category)
 }
 
 func (s *Subsciber) Close() error {

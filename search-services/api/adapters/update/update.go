@@ -107,3 +107,56 @@ func (c Client) Drop(ctx context.Context) error {
 	}
 	return err
 }
+
+func (c Client) GetComics(ctx context.Context, category string) ([]core.Comic, error) {
+	out, err := c.client.GetComics(
+		ctx,
+		&updatepb.GetComicsRequest{
+			Category: category, // "" is acceptable
+		},
+	)
+	if err != nil {
+		c.log.Error(
+			"failed to get comics",
+			"category", category,
+			"error", err,
+		)
+
+		if status.Code(err) == codes.InvalidArgument {
+			return nil, core.ErrBadArguments
+		}
+
+		return nil, err
+	}
+
+	comics := make([]core.Comic, 0, len(out.Comics))
+	for _, cpb := range out.Comics {
+		comics = append(comics, core.Comic{
+			ID:       int(cpb.Id),
+			URL:      cpb.Url,
+			Title:    cpb.Title,
+			Date:     cpb.Date.AsTime(),
+			Category: cpb.Category,
+		})
+	}
+
+	return comics, nil
+}
+
+func (c Client) GetCategories(ctx context.Context) ([]core.CategoryStats, error) {
+	out, err := c.client.GetCategories(ctx, nil)
+	if err != nil {
+		c.log.Error("failed to get categories", "error", err)
+		return nil, err
+	}
+
+	stats := make([]core.CategoryStats, 0, len(out.CategoryStats))
+	for _, item := range out.CategoryStats {
+		stats = append(stats, core.CategoryStats{
+			Category: item.Category,
+			Count:    int(item.Count),
+		})
+	}
+
+	return stats, nil
+}
