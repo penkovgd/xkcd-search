@@ -119,6 +119,48 @@ services:
       nats:
         condition: service_started
 
+  categorizer:
+    image: categorizer:latest
+    build:
+      context: search-services
+      dockerfile: Dockerfile.categorizer
+    container_name: categorizer
+    restart: unless-stopped
+    ports:
+      - 28084:8080
+    volumes:
+      - ./search-services/categorizer/config.yaml:/config.yaml
+    environment:
+      - CATEGORIZER_ADDRESS=:8080
+      - OLLAMA_URL=http://ollama:11434
+      - CONCURRENCY=10
+      - BROKER_ADDRESS=nats://nats:4222
+    depends_on:
+      nats:
+        condition: service_started
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    image: my-ollama:latest
+    build: 
+      context: search-services
+      dockerfile: Dockerfile.ollama
+    container_name: ollama
+    ports:
+      - 11435:11434
+    environment:
+      - OLLAMA_MODEL=phi3:mini
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4
@@ -178,3 +220,4 @@ volumes:
   postgres:
   pgadmin:
   minio-storage:
+  ollama_data:

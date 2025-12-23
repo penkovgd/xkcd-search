@@ -1,0 +1,15 @@
+FROM golang:1.25 AS build
+
+ENV PATH="$PATH:$(go env GOPATH)/bin"
+
+COPY go.mod go.sum /src/
+COPY categorizer /src/categorizer
+
+ENV CGO_ENABLED=0
+RUN cd /src && go build -o /categorizer categorizer/main.go
+
+FROM alpine:3.20
+
+COPY --from=build /categorizer /categorizer
+
+ENTRYPOINT [ "/categorizer" ]

@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -111,11 +112,25 @@ func (s *Service) Update(ctx context.Context) error {
 				return
 			}
 
-			err = s.db.Add(ctx, Comic{ID: info.ID, URL: imageUrlLocal, Words: words, Title: info.SafeTitle, Date: info.Date})
+			comic := Comic{ID: info.ID, URL: imageUrlLocal, Words: words, Title: info.SafeTitle, Date: info.Date}
+			err = s.db.Add(ctx, comic)
 			if err != nil {
 				s.log.Warn("failed to save comic to db, skipping", "id", id, "error", err)
 				return
 			}
+
+			payload, err := json.Marshal(comic)
+			if err != nil {
+				s.log.Warn("failed to marshal comic to json, skipping", "id", id, "error", err)
+				return
+			}
+			err = s.publisher.Publish(ctx, Message{Subject: "xkcd.db.added_comic", Payload: payload})
+			if err != nil {
+				s.log.Warn("failed to publish xkcd.db.added_comic message, skipping", "id", id, "error", err)
+				return
+			}
+			s.log.Info("emitted message", "message", "xkcd.db.added_comic")
+
 			added++
 		})
 	}
@@ -124,7 +139,7 @@ func (s *Service) Update(ctx context.Context) error {
 	if err != nil {
 		s.log.Warn("publish message", "error", err)
 	}
-	s.log.Info("finished updating comics", "added", added)
+	s.log.Info("emitted message", "message", "xkcd.db.updated", "added", added)
 	return nil
 }
 

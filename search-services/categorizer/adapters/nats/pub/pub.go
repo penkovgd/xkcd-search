@@ -1,4 +1,4 @@
-package publisher
+package pub
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/nats-io/nats.go"
-	"yadro.com/course/update/core"
+	"yadro.com/course/categorizer/core"
 )
 
 type Publisher struct {
