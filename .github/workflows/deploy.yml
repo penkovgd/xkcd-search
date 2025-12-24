@@ -2,9 +2,9 @@ name: Deploy
 
 on:
   push:
-    branches: [ "main", "task10"]
+    branches: ["main", "task10"]
   pull_request:
-    branches: [ "main", "task10"]
+    branches: ["main", "task10"]
 
 jobs:
   deploy:
@@ -21,7 +21,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
         run: |
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
-            cd ~/task10
+            cd ~/xkcd-search
             git pull github task10
             make up
           "
