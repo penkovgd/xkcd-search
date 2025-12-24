@@ -150,7 +150,7 @@ func TestUpdate_Success(t *testing.T) {
 	actual := db.Comics
 	published := pub.GetPublishedMessages()
 	assert.Equal(t, want, actual)
-	//require.Len(t, published, 1)
+	// require.Len(t, published, 1)
 	assert.Contains(t, published[1].Subject, "update")
 }
 
