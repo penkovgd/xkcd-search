@@ -60,7 +60,7 @@ services:
       - WORDS_ADDRESS=words:8080
       - BROKER_ADDRESS=nats://nats:4222
       - MINIO_CONNECT_ADDRESS=minio:9000
-      - MINIO_PUBLIC_ADDRESS=localhost:9000
+      - MINIO_PUBLIC_ADDRESS=144.31.170.129:9000
     depends_on:
       postgres:
         condition: service_healthy

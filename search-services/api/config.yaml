@@ -11,3 +11,4 @@ api_server:
 cors_allowed_origins:
   - http://localhost:5173
   - http://localhost
+  - http://144.31.170.129
