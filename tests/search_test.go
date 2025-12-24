@@ -84,23 +84,23 @@ func SearchPhrases(t *testing.T) {
 	}{
 		{
 			phrase: "linux+cpu+video+machine+русские+хакеры",
-			url:    "https://imgs.xkcd.com/comics/supported_features.png",
+			url:    "http://localhost:9000/images/619.png",
 		},
 		{
 			phrase: "Binary Christmas Tree",
-			url:    "https://imgs.xkcd.com/comics/tree.png",
+			url:    "http://localhost:9000/images/835.png",
 		},
 		{
 			phrase: "apple a day -> keeps doctors away",
-			url:    "https://imgs.xkcd.com/comics/an_apple_a_day.png",
+			url:    "http://localhost:9000/images/2161.png",
 		},
 		{
 			phrase: "mines, captcha",
-			url:    "https://imgs.xkcd.com/comics/mine_captcha.png",
+			url:    "http://localhost:9000/images/2496.png",
 		},
 		{
 			phrase: "newton apple's idea",
-			url:    "https://imgs.xkcd.com/comics/inspiration.png",
+			url:    "http://localhost:9000/images/2820.png",
 		},
 	}
 
@@ -146,23 +146,23 @@ func IndexSearchPhrases(t *testing.T) {
 	}{
 		{
 			phrase: "linux+cpu+video+machine+русские+хакеры",
-			url:    "https://imgs.xkcd.com/comics/supported_features.png",
+			url:    "http://localhost:9000/images/619.png",
 		},
 		{
 			phrase: "Binary Christmas Tree",
-			url:    "https://imgs.xkcd.com/comics/tree.png",
+			url:    "http://localhost:9000/images/835.png",
 		},
 		{
 			phrase: "apple a day -> keeps doctors away",
-			url:    "https://imgs.xkcd.com/comics/an_apple_a_day.png",
+			url:    "http://localhost:9000/images/2161.png",
 		},
 		{
 			phrase: "mines, captcha",
-			url:    "https://imgs.xkcd.com/comics/mine_captcha.png",
+			url:    "http://localhost:9000/images/2496.png",
 		},
 		{
 			phrase: "newton apple's idea",
-			url:    "https://imgs.xkcd.com/comics/inspiration.png",
+			url:    "http://localhost:9000/images/2820.png",
 		},
 	}
 
