@@ -8,7 +8,3 @@ search_address: localhost:28083
 api_server:
   address: localhost:8080
   timeout: 5s
-cors_allowed_origins:
-  - http://localhost:5173
-  - http://localhost
-  - http://144.31.170.129

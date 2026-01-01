@@ -23,5 +23,5 @@ jobs:
           sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "
             cd ~/xkcd-search
             git pull origin main
-            make up
+            ENV_FILE=prod make up
           "

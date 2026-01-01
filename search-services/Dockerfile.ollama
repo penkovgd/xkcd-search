@@ -4,7 +4,7 @@ FROM ollama/ollama:latest
 RUN apt-get update && \
     apt-get install -y curl && \
     rm -rf /var/lib/apt/lists/*
-# Создаём entrypoint скрипт прямо в Dockerfile
+
 RUN mkdir -p /app-entrypoint && \
     printf '#!/bin/bash\n' > /app-entrypoint/entrypoint.sh && \
     printf '\nollama serve &\n' >> /app-entrypoint/entrypoint.sh && \
@@ -15,7 +15,5 @@ RUN mkdir -p /app-entrypoint && \
     printf 'ollama pull "$OLLAMA_MODEL"\n' >> /app-entrypoint/entrypoint.sh && \
     printf 'wait $PID\n' >> /app-entrypoint/entrypoint.sh && \
     chmod +x /app-entrypoint/entrypoint.sh
-
-ENV OLLAMA_MODEL=phi3:mini
 
 ENTRYPOINT ["/app-entrypoint/entrypoint.sh"]

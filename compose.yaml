@@ -11,16 +11,8 @@ services:
       - 28080:8080
     volumes:
       - ./search-services/api/config.yaml:/config.yaml
-    environment:
-      - ADMIN_USER=admin
-      - ADMIN_PASSWORD=password
-      - TOKEN_TTL=1h
-      - API_ADDRESS=:8080
-      - WORDS_ADDRESS=words:8080
-      - UPDATE_ADDRESS=update:8080
-      - SEARCH_ADDRESS=search:8080
-      - SEARCH_CONCURRENCY=10
-      - SEARCH_RATE=100
+    env_file:
+      - .env.${ENV_FILE:-local}
     depends_on:
       - words
       - update
@@ -37,9 +29,8 @@ services:
       - 28081:8080
     volumes:
       - ./search-services/words/config.yaml:/config.yaml
-    environment:
-      - WORDS_ADDRESS=:8080
-
+    env_file:
+      - .env.${ENV_FILE:-local}
   update:
     image: update:latest
     build:
@@ -51,16 +42,8 @@ services:
       - 28082:8080
     volumes:
       - ./search-services/update/config.yaml:/config.yaml
-    environment:
-      - LOG_LEVEL=INFO
-      - UPDATE_ADDRESS=:8080
-      - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
-      - XKCD_URL=https://xkcd.com
-      - XKCD_CONCURRENCY=10
-      - WORDS_ADDRESS=words:8080
-      - BROKER_ADDRESS=nats://nats:4222
-      - MINIO_CONNECT_ADDRESS=minio:9000
-      - MINIO_PUBLIC_ADDRESS=144.31.170.129:9000
+    env_file:
+      - .env.${ENV_FILE:-local}
     depends_on:
       postgres:
         condition: service_healthy
@@ -84,8 +67,8 @@ services:
     restart: unless-stopped
     ports:
       - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: password
+    env_file:
+      - .env.${ENV_FILE:-local}
     volumes:
       - postgres:/var/lib/postgresql
     healthcheck:
@@ -105,13 +88,8 @@ services:
       - 28083:8080
     volumes:
       - ./search-services/search/config.yaml:/config.yaml
-    environment:
-      - SEARCH_ADDRESS=:8080
-      - DB_ADDRESS=postgres://postgres:password@postgres:5432/postgres
-      - WORDS_ADDRESS=words:8080
-      - SEARCH_RATE=100
-      - SEARCH_CONCURRENCY=10
-      - BROKER_ADDRESS=nats://nats:4222
+    env_file:
+      - .env.${ENV_FILE:-local}
     depends_on:
       postgres:
         condition: service_healthy
@@ -126,11 +104,11 @@ services:
       context: search-services
       dockerfile: Dockerfile.web  
     container_name: web
+    env_file:
+      - .env.${ENV_FILE:-local}
     restart: unless-stopped
     ports:
       - "80:80"
-    environment:
-      -    VITE_API_BASE_URL=http://api:28080
 
   categorizer:
     image: categorizer:latest
@@ -143,12 +121,8 @@ services:
       - 28084:8080
     volumes:
       - ./search-services/categorizer/config.yaml:/config.yaml
-    environment:
-      - LOG_LEVEL=INFO 
-      - CATEGORIZER_ADDRESS=:8080
-      - OLLAMA_URL=http://ollama:11434
-      - CONCURRENCY=2
-      - BROKER_ADDRESS=nats://nats:4222
+    env_file:
+      - .env.${ENV_FILE:-local}
     depends_on:
       nats:
         condition: service_started
@@ -163,8 +137,8 @@ services:
     container_name: ollama
     ports:
       - 11435:11434
-    environment:
-      - OLLAMA_MODEL=phi3:mini
+    env_file:
+      - .env.${ENV_FILE:-local}    
     volumes:
       - ollama_data:/root/.ollama
     restart: unless-stopped
@@ -181,10 +155,8 @@ services:
     restart: unless-stopped
     ports:
       - "18888:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@test.com
-      PGADMIN_DEFAULT_PASSWORD: password
-      PGADMIN_DISABLE_POSTFIX: "true"
+    env_file:
+      - .env.${ENV_FILE:-local}
     volumes:
       - pgadmin:/var/lib/pgadmin
     depends_on:
@@ -201,28 +173,29 @@ services:
     ports:
       - "9000:9000" 
       - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: root 
-      MINIO_ROOT_PASSWORD: password 
-      MINIO_USE_SSL: "false"
-      MINIO_DEFAULT_BUCKETS: "images"
+    env_file:
+      - .env.${ENV_FILE:-local}
     volumes:
       - minio-storage:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
       interval: 30s
-      timeout: 20s
-      retries: 3
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
 
   initminio:
     image: minio/mc:latest
     container_name: minio_mc
     depends_on:
       - minio
+    env_file:
+      - .env.${ENV_FILE:-local}
     entrypoint: >
       /bin/sh -c "
-      sleep 5;
-      /usr/bin/mc alias set myminio http://minio:9000 root password;
+      sleep 3;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb myminio/images;
       /usr/bin/mc anonymous set download myminio/images;
       echo 'all done';
